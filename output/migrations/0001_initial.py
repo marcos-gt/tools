@@ -11,7 +11,6 @@ class Migration(migrations.Migration):
     dependencies = [
         ('categoria', '0001_initial'),
         ('chat', '0001_initial'),
-        ('usuario', '0001_initial'),
     ]
 
     operations = [
@@ -23,7 +22,6 @@ class Migration(migrations.Migration):
                 ('data_criacao', models.DateTimeField(auto_now_add=True)),
                 ('categoria', models.ManyToManyField(to='categoria.categoria')),
                 ('chats', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='chat.chat')),
-                ('usuario', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='usuario.usuario')),
             ],
         ),
     ]

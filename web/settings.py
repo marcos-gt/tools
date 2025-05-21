@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'web',
-    'usuario',
     'chat',
     'output',
     'categoria'

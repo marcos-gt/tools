@@ -1,5 +1,4 @@
 from django.contrib import admin
-from usuario.models import Usuario
 from chat.models import Chat
 from output.models import Output
 from categoria.models import Categoria
@@ -8,7 +7,6 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 from django import forms
 
-admin.site.register(Usuario)
 admin.site.register(Chat)
 admin.site.register(Output)
 admin.site.register(Categoria)
