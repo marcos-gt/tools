@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from web.auth import api_login
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,4 +26,8 @@ urlpatterns = [
     path('output/', include('output.urls')),
     path('categoria/', include('categoria.urls')),
     path('sugestao/', include('sugestao.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('api-login/', api_login, name='api_login'),
+    path('login/',include('login.urls'), name='login'),
+
 ]

@@ -1,12 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Card Component</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .chat-card {
+            transition: transform 0.2s ease-in-out;
+            border-left: 4px solid #0d6efd;
+        }
+
+        .chat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .category-badge {
+            font-size: 0.75rem;
+        }
+
+        .visualization-badge {
+            font-size: 0.7rem;
+        }
+    </style>
 </head>
-<body>
-    <div>
-        <h1>Chat</h1>
+<body class="p-4">
+    <!-- Template do Chat Card -->
+    <template id="chatCardTemplate">
+        <div class="card chat-card mb-3">
+            <div class="card-header bg-white border-0 pb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-outline-primary category-badge text-capitalize chat-category"></span>
+                        <span class="badge bg-secondary visualization-badge d-flex align-items-center gap-1">
+                            <i class="visualization-icon"></i>
+                            <span class="visualization-text"></span>
+                        </span>
+                    </div>
+                    <small class="text-muted chat-timestamp"></small>
+                </div>
+            </div>
+            <div class="card-body pt-0">
+                <p class="card-text chat-message"></p>
+            </div>
+            <div class="card-footer bg-transparent border-0 pt-0">
+                <small class="text-muted">ID: <span class="chat-id"></span></small>
+            </div>
+        </div>
+    </template>
+
+    <!-- Exemplo de uso -->
+    <div id="example-container">
+        <!-- Cards serão inseridos aqui -->
     </div>
+
+    <script>
+        // Função para criar um chat card
+        function createChatCard(chat) {
+            const template = document.getElementById('chatCardTemplate');
+            const clone = template.content.cloneNode(true);
+
+            // Preencher dados
+            clone.querySelector('.chat-category').textContent = chat.category;
+            clone.querySelector('.chat-message').textContent = chat.message;
+            clone.querySelector('.chat-id').textContent = chat.id;
+            clone.querySelector('.chat-timestamp').textContent = formatTimestamp(chat.timestamp);
+
+            // Configurar ícone e texto de visualização
+            const icon = clone.querySelector('.visualization-icon');
+            const text = clone.querySelector('.visualization-text');
+
+            if (chat.visualizationType === 'mapa-mental') {
+                icon.className = 'bi bi-diagram-3';
+                text.textContent = 'Mapa Mental';
+            } else if (chat.visualizationType === 'fluxograma') {
+                icon.className = 'bi bi-diagram-2';
+                text.textContent = 'Fluxograma';
+            }
+
+            return clone;
+        }
+
+        // Função para formatar timestamp
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (minutes < 1) return 'agora';
+            if (minutes < 60) return `${minutes}m atrás`;
+            if (hours < 24) return `${hours}h atrás`;
+            return `${days}d atrás`;
+        }
+
+        // Exemplo de uso
+        const exampleChat = {
+            id: '1',
+            message: 'Esta é uma mensagem de exemplo do sistema de chat.',
+            category: 'suporte',
+            visualizationType: 'mapa-mental',
+            timestamp: new Date().toISOString()
+        };
+
+        const container = document.getElementById('example-container');
+        container.appendChild(createChatCard(exampleChat));
+    </script>
 </body>
 </html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Manager Component</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .category-badge {
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .category-badge .btn-close {
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+        }
+
+        .category-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h6 class="card-title mb-0">
+                <i class="bi bi-tags me-2"></i>
+                Gerenciar Categorias
+            </h6>
+        </div>
+        <div class="card-body">
+            <form id="categoryForm" class="mb-3">
+                <div class="input-group">
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="newCategoryInput"
+                        placeholder="Nova categoria..."
+                        required
+                    >
+                    <button type="submit" class="btn btn-success" id="addCategoryBtn">
+                        <span class="add-text">
+                            <i class="bi bi-plus"></i>
+                        </span>
+                        <span class="loading-text d-none">
+                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                        </span>
+                    </button>
+                </div>
+            </form>
+
+            <div id="categoriesContainer">
+                <!-- Categorias serão inseridas aqui -->
+            </div>
+
+            <div id="emptyCategoriesState" class="text-center text-muted py-3 d-none">
+                <i class="bi bi-tags fs-4 mb-2"></i>
+                <p class="mb-0">Nenhuma categoria criada</p>
+                <small>Adicione uma categoria para começar</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template para categoria -->
+    <template id="categoryBadgeTemplate">
+        <span class="badge bg-secondary category-badge me-2 mb-2 d-inline-flex align-items-center">
+            <span class="category-name"></span>
+            <button type="button" class="btn-close btn-close-white ms-2" data-category=""></button>
+        </span>
+    </template>
+
+    <script>
+        class CategoryManager {
+            constructor(containerId, options = {}) {
+                this.container = document.getElementById(containerId);
+                this.form = this.container.querySelector('#categoryForm');
+                this.input = this.container.querySelector('#newCategoryInput');
+                this.addBtn = this.container.querySelector('#addCategoryBtn');
+                this.categoriesContainer = this.container.querySelector('#categoriesContainer');
+                this.emptyState = this.container.querySelector('#emptyCategoriesState');
+                this.template = this.container.querySelector('#categoryBadgeTemplate');
+
+                this.categories = options.categories || [];
+                this.onAddCategory = options.onAddCategory || (() => {});
+                this.onDeleteCategory = options.onDeleteCategory || (() => {});
+
+                this.deletingCategory = null;
+
+                this.init();
+            }
+
+            init() {
+                this.form.addEventListener('submit', this.handleAddCategory.bind(this));
+                this.categoriesContainer.addEventListener('click', this.handleDeleteCategory.bind(this));
+                this.renderCategories();
+            }
+
+            updateCategories(categories) {
+                this.categories = categories;
+                this.renderCategories();
+            }
+
+            renderCategories() {
+                this.categoriesContainer.innerHTML = '';
+
+                if (this.categories.length === 0) {
+                    this.emptyState.classList.remove('d-none');
+                    return;
+                }
+
+                this.emptyState.classList.add('d-none');
+
+                this.categories.forEach(category => {
+                    const badge = this.createCategoryBadge(category);
+                    this.categoriesContainer.appendChild(badge);
+                });
+            }
+
+            createCategoryBadge(category) {
+                const clone = this.template.content.cloneNode(true);
+                const badge = clone.querySelector('.category-badge');
+                const nameSpan = clone.querySelector('.category-name');
+                const deleteBtn = clone.querySelector('.btn-close');
+
+                nameSpan.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                deleteBtn.setAttribute('data-category', category);
+
+                return clone;
+            }
+
+            async handleAddCategory(e) {
+                e.preventDefault();
+
+                const categoryName = this.input.value.trim().toLowerCase();
+
+                if (!categoryName) return;
+
+                if (this.categories.includes(categoryName)) {
+                    this.showError('Esta categoria já existe');
+                    return;
+                }
+
+                this.setAddLoading(true);
+
+                try {
+                    await this.onAddCategory(categoryName);
+                    this.input.value = '';
+                } catch (error) {
+                    console.error('Erro ao adicionar categoria:', error);
+                    this.showError('Erro ao adicionar categoria');
+                } finally {
+                    this.setAddLoading(false);
+                }
+            }
+
+            async handleDeleteCategory(e) {
+                if (!e.target.classList.contains('btn-close')) return;
+
+                const category = e.target.getAttribute('data-category');
+
+                if (this.deletingCategory === category) return;
+
+                if (!confirm(`Tem certeza que deseja deletar a categoria "${category}"?`)) {
+                    return;
+                }
+
+                this.setDeleteLoading(category, true);
+
+                try {
+                    await this.onDeleteCategory(category);
+                } catch (error) {
+                    console.error('Erro ao deletar categoria:', error);
+                    this.showError('Erro ao deletar categoria');
+                } finally {
+                    this.setDeleteLoading(category, false);
+                }
+            }
+
+            setAddLoading(loading) {
+                const addText = this.addBtn.querySelector('.add-text');
+                const loadingText = this.addBtn.querySelector('.loading-text');
+
+                if (loading) {
+                    addText.classList.add('d-none');
+                    loadingText.classList.remove('d-none');
+                    this.addBtn.disabled = true;
+                    this.input.disabled = true;
+                } else {
+                    addText.classList.remove('d-none');
+                    loadingText.classList.add('d-none');
+                    this.addBtn.disabled = false;
+                    this.input.disabled = false;
+                }
+            }
+
+            setDeleteLoading(category, loading) {
+                const deleteBtn = this.categoriesContainer.querySelector(`[data-category="${category}"]`);
+                if (!deleteBtn) return;
+
+                if (loading) {
+                    this.deletingCategory = category;
+                    deleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+                    deleteBtn.disabled = true;
+                } else {
+                    this.deletingCategory = null;
+                    deleteBtn.innerHTML = '';
+                    deleteBtn.disabled = false;
+                }
+            }
+
+            showError(message) {
+                // Implementar toast ou alert para mostrar erro
+                alert(message);
+            }
+        }
+
+        // Exemplo de uso
+        const categoryManager = new CategoryManager('category-manager-container', {
+            categories: ['suporte', 'vendas', 'feedback'],
+            onAddCategory: async (category) => {
+                console.log('Adicionando categoria:', category);
+                // Simular delay de API
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                console.log('Categoria adicionada com sucesso!');
+            },
+            onDeleteCategory: async (category) => {
+                console.log('Deletando categoria:', category);
+                // Simular delay de API
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                console.log('Categoria deletada com sucesso!');
+            }
+        });
+    </script>
+</body>
+</html>
