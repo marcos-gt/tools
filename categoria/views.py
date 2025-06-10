@@ -1,4 +1,5 @@
 from django.shortcuts import render
+import json
 from django.http import JsonResponse
 from categoria.models import Categoria
 
@@ -20,9 +21,6 @@ def categoria(request):
     return JsonResponse({'categorias': data})
 
 def renderizar(request):
-    """
-    Render the categoria page.
-    """
     return render(request, 'categoria.html')
 def list_all(request):
     """
@@ -38,21 +36,31 @@ def list_all(request):
     return JsonResponse({'categorias': data})
 
 def receberCategorias(request):
+    # printa no terminal
+    print("Dados recebidos:", request.body)
     if request.method == 'POST':
-        categorias = request.POST.getlist('categorias[]')
-        if not categorias:
-            return JsonResponse({'error': 'No categories provided'}, status=400)
+        # Detecta JSON
+        try:
+            data = json.loads(request.body)
+        except Exception:
+            return JsonResponse({'error': 'JSON inválido'}, status=400)
+
+
+        nomes = []
+        if 'categorias' in data:
+            nomes = data['categorias']
+        elif 'nome' in data:
+            nomes = [data['nome']]
+        else:
+            return JsonResponse({'error': 'Nenhum nome ou categorias enviados'}, status=400)
 
         criadas = []
-        for nome in categorias:
+        for nome in nomes:
             cat, created = Categoria.objects.get_or_create(nome=nome)
             if created:
                 criadas.append(nome)
 
-        return JsonResponse({
-            'message': 'Categorias salvas com sucesso!',
-            'criadas': criadas,
-            'todas': categorias
-        })
+        return JsonResponse({'message': 'Categorias salvas com sucesso!', 'criadas': criadas, 'todas': nomes})
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+

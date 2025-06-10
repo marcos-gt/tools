@@ -1,16 +1,17 @@
-<script>
-// Sistema de Chat - JavaScript Principal
+
+
 class ChatApp {
     constructor() {
         this.chats = [];
         this.categories = [];
         this.activeTab = 'all';
         this.loading = false;
-        
+        console.log("entrei construtor")
         this.init();
     }
     
     async init() {
+        console.log("entrei init")
         this.bindEvents();
         await this.loadInitialData();
     }
@@ -31,48 +32,38 @@ class ChatApp {
     
     async loadInitialData() {
         this.setLoading(true);
-        
+        console.log("Iniciando o carregamento.")
         try {
-            // Simular carregamento de dados da API
-            await this.delay(1000);
-            
-            // Dados mock
-            this.categories = ['suporte', 'vendas', 'feedback', 'outros'];
-            this.chats = [
-                {
-                    id: '1',
-                    message: 'Olá, como posso ajudar com o suporte técnico?',
-                    category: 'suporte',
-                    visualizationType: 'mapa-mental',
-                    timestamp: new Date().toISOString()
-                },
-                {
-                    id: '2',
-                    message: 'Quando será o próximo lançamento do produto?',
-                    category: 'vendas',
-                    visualizationType: 'fluxograma',
-                    timestamp: new Date(Date.now() - 86400000).toISOString()
-                },
-                {
-                    id: '3',
-                    message: 'Preciso de ajuda com configuração da minha conta',
-                    category: 'suporte',
-                    visualizationType: 'mapa-mental',
-                    timestamp: new Date(Date.now() - 172800000).toISOString()
-                }
-            ];
-            
-            this.renderCategories();
-            this.renderCategoryTabs();
-            this.renderChats();
-            this.updateCategoriesSelect();
-            
-        } catch (error) {
-            this.showError('Erro ao carregar dados');
-            console.error('Erro:', error);
-        } finally {
-            this.setLoading(false);
-        }
+        // 1. Buscar conversas da API
+        const chatsResp = await fetch('/chat/meus/');
+        if (!chatsResp.ok)
+            throw new Error('Erro ao carregar conversas');
+        const chatsData = await chatsResp.json();
+
+        this.chats = chatsData.chats;
+        console.log(this.chats);
+
+        const categoriesResp = await fetch('/categoria/lista');
+        if (!categoriesResp.ok)
+            throw new Error('Erro ao carregar categorias');
+        const categoriesData = await categoriesResp.json();
+        console.log(categoriesData);
+
+        // Ajuste conforme sua resposta real da API!
+        this.categories = categoriesData.categorias.map(cat => cat.nome);
+
+        this.renderCategories();
+        this.renderCategoryTabs();
+        this.renderChats();
+        this.updateCategoriesSelect();
+        console.log("carregado");
+    } catch (error) {
+        this.showError('Erro ao carregar dados');
+        console.error('Erro:', error);
+    } finally {
+        this.setLoading(false);
+    }
+
     }
     
     async handleAddChat(e) {
@@ -80,7 +71,7 @@ class ChatApp {
         
         const form = e.target;
         const formData = new FormData(form);
-        const message = formData.get('message').trim();
+        const message = formData.get('message');
         const category = formData.get('category');
         const visualizationType = formData.get('visualizationType');
         
@@ -95,9 +86,21 @@ class ChatApp {
         try {
             console.log('Adicionando chat:', { message, category, visualizationType });
             // Simular API call
-            await this.delay(1000);
+            const response = await fetch('/chat/novo/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin',
+        });
 
-            print(`Adicionando chat: ${message}, Categoria: ${category}, Tipo de Visualização: ${visualizationType}`);
+        if (!response.ok) {
+            const result = await response.json();
+            throw new Error(result.error || 'Erro ao adicionar chat');
+        }
+
+
             const newChat = {
                 id: Date.now().toString(),
                 message,
@@ -428,4 +431,3 @@ function logout() {
 document.addEventListener('DOMContentLoaded', () => {
     new ChatApp();
 });
-</script>

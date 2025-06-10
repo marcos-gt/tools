@@ -218,21 +218,38 @@
         }
 
         // Exemplo de uso
+        const categorias = [
+        {% for categoria in categorias %}
+            "{{ categoria.nome }}"{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    ];
         const categoryManager = new CategoryManager('category-manager-container', {
-            categories: ['suporte', 'vendas', 'feedback'],
-            onAddCategory: async (category) => {
-                console.log('Adicionando categoria:', category);
-                // Simular delay de API
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                console.log('Categoria adicionada com sucesso!');
-            },
-            onDeleteCategory: async (category) => {
-                console.log('Deletando categoria:', category);
-                // Simular delay de API
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                console.log('Categoria deletada com sucesso!');
+    categories: categorias,
+    onAddCategory: async (category) => {
+        try {
+            // Use fetch para enviar ao Django!
+            const response = await fetch("{% url 'receber_categorias' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ nome: category })
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "Erro ao adicionar categoria");
             }
-        });
+            // Se chegou aqui, sucesso! (pode exibir toastr, etc)
+        } catch (error) {
+            throw error; // será exibido pelo showError
+        }
+    },
+        onDeleteCategory: async (category) => {
+            // Sua lógica de excluir
+        }
+    });
+
     </script>
 </body>
 </html>
