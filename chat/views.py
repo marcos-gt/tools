@@ -17,6 +17,8 @@ def chat(request):
         {
             'id': chat.id,
             'message': chat.message,
+            'visualizationType': chat.visualizationType if hasattr(chat, 'visualizationType') else None,
+            'categoria': chat.categoria.nome if hasattr(chat, 'categoria') else None,
             'timestamp': chat.timestamp.isoformat(),
         }
         for chat in chats
@@ -34,6 +36,9 @@ def meus_chats(request):
             'id': chat.id,
             'message': chat.message,
             'timestamp': chat.timestamp.isoformat(),
+            'usuario': chat.usuario.username,
+            'visualizationType': chat.visualizationType if hasattr(chat, 'visualizationType') else None,
+            'categoria': chat.categoria.nome if hasattr(chat, 'categoria') else None,
         }
         for chat in chats
     ]

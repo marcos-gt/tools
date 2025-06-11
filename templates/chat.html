@@ -51,7 +51,6 @@
         </div>
     </template>
 
-    <!-- Exemplo de uso -->
     <div id="example-container">
         <!-- Cards serão inseridos aqui -->
     </div>
@@ -98,15 +97,6 @@
             if (hours < 24) return `${hours}h atrás`;
             return `${days}d atrás`;
         }
-
-        // Exemplo de uso
-        const exampleChat = {
-            id: '1',
-            message: 'Esta é uma mensagem de exemplo do sistema de chat.',
-            category: 'suporte',
-            visualizationType: 'mapa-mental',
-            timestamp: new Date().toISOString()
-        };
 
         const container = document.getElementById('example-container');
         container.appendChild(createChatCard(exampleChat));

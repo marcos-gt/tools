@@ -52,6 +52,9 @@
             width: 2rem;
             height: 2rem;
         }
+        #carddeep {
+            margin-top:25px;
+        }
     </style>
 
 </head>
@@ -121,9 +124,9 @@
                     </div>
                     <div class="card-body">
                         <!-- Tabs -->
-                        <ul class="nav nav-pills mb-3" id="categoryTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all" type="button" role="tab">
+                        <ul class="nav nav-pills mb-3" id="categoryTabs" >  {# role="tablist" #}
+                            <li > <!-- class="nav-item" role="presentation"    data-bs-toggle="pill" data-bs-target="#all"    -->
+                                <button class="nav-link active" id="all-tab" type="button" role="tab">
                                    Todos (<span id="all-count">{{ qtd }}</span>)
                                 </button>
                             </li>
@@ -202,8 +205,33 @@
                     <div id="category-manager-container">
                         {% include "categoria.html" %}
                     </div>
+                    <!-- Generator Card -->
+                    <div class="card shadow-sm" id="carddeep" style="margin-top:25px;">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-magic me-2"></i>
+                                Gerar Conteúdo
+                            </h6>
+                        </div>
 
-
+                        <div class="card-body" >
+                            <form id="generatorForm">
+                                <div class="mb-3">
+                                    <label for="generatorCategory" class="form-label">Categoria</label>
+                                    <select class="form-select" id="generatorCategory" name="generatorCategory" required>
+                                        <option value="">Selecione uma categoria</option>
+                                          {% for categoria in categorias %}
+                                        <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-warning w-100" id="generateBtn">
+                                    <i class="bi bi-magic me-2"></i>
+                                    Gerar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
 
                 </div>
             </div>

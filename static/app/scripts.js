@@ -6,12 +6,10 @@ class ChatApp {
         this.categories = [];
         this.activeTab = 'all';
         this.loading = false;
-        console.log("entrei construtor")
         this.init();
     }
     
     async init() {
-        console.log("entrei init")
         this.bindEvents();
         await this.loadInitialData();
     }
@@ -19,9 +17,9 @@ class ChatApp {
     bindEvents() {
         // Form de adicionar chat
         document.getElementById('chatForm').addEventListener('submit', this.handleAddChat.bind(this));
-        
-        // Form de adicionar categoria
         document.getElementById('categoryForm').addEventListener('submit', this.handleAddCategory.bind(this));
+        // Form de adicionar categoria
+          document.getElementById('generatorForm').addEventListener('submit', this.handleGenerate.bind(this));
         
         // Delegação de eventos para deletar categorias
         document.getElementById('categories-container').addEventListener('click', this.handleDeleteCategory.bind(this));
@@ -32,7 +30,6 @@ class ChatApp {
     
     async loadInitialData() {
         this.setLoading(true);
-        console.log("Iniciando o carregamento.")
         try {
         // 1. Buscar conversas da API
         const chatsResp = await fetch('/chat/meus/');
@@ -40,23 +37,26 @@ class ChatApp {
             throw new Error('Erro ao carregar conversas');
         const chatsData = await chatsResp.json();
 
-        this.chats = chatsData.chats;
-        console.log(this.chats);
+        this.chats = chatsData.chats.map(chat => ({
+            ...chat,
+            // aceita tanto "category" quanto "categoria"
+             category: (chat.category || chat.categoria || "").trim().toUpperCase()
+        }));
+
 
         const categoriesResp = await fetch('/categoria/lista');
         if (!categoriesResp.ok)
             throw new Error('Erro ao carregar categorias');
         const categoriesData = await categoriesResp.json();
-        console.log(categoriesData);
 
-        // Ajuste conforme sua resposta real da API!
-        this.categories = categoriesData.categorias.map(cat => cat.nome);
+         this.categories = categoriesData.categorias.map(cat => cat.nome.trim().toUpperCase());
+
 
         this.renderCategories();
         this.renderCategoryTabs();
         this.renderChats();
         this.updateCategoriesSelect();
-        console.log("carregado");
+         this.updateGeneratorSelect();
     } catch (error) {
         this.showError('Erro ao carregar dados');
         console.error('Erro:', error);
@@ -104,7 +104,7 @@ class ChatApp {
             const newChat = {
                 id: Date.now().toString(),
                 message,
-                category,
+                 category: category.toUpperCase(),
                 visualizationType,
                 timestamp: new Date().toISOString()
             };
@@ -131,7 +131,7 @@ class ChatApp {
         
         const form = e.target;
         const formData = new FormData(form);
-        const category = formData.get('newCategory').trim().toLowerCase();
+        const category = formData.get('newCategory').trim().toUpperCase();
         
         if (!category) {
             this.showError('Nome da categoria é obrigatório');
@@ -147,13 +147,21 @@ class ChatApp {
         this.setButtonLoading(submitBtn, true);
         
         try {
-            // Simular API call
-            await this.delay(1000);
-            
+            // REVISAR ISSO!
+            const response = await fetch('/categoria/nova/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
+            });
+
             this.categories.push(category);
             this.renderCategories();
             this.renderCategoryTabs();
             this.updateCategoriesSelect();
+            this.updateGeneratorSelect();
             
             // Limpar formulário
             form.reset();
@@ -167,9 +175,52 @@ class ChatApp {
             this.setButtonLoading(submitBtn, false);
         }
     }
-    
+    async handleGenerate(e) {
+        e.preventDefault();
+
+        const form = e.target;
+        const formData = new FormData(form);
+        const category = formData.get('generatorCategory');
+
+        if (!category) {
+            this.showError('Selecione uma categoria');
+            return;
+        }
+
+        const submitBtn = form.querySelector('#generateBtn');
+        this.setButtonLoading(submitBtn, true);
+
+        try {
+            // Fazer requisição para API de geração
+            const response = await fetch('/gerar/conteudo/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
+            });
+
+            if (!response.ok) {
+                const result = await response.json();
+                throw new Error(result.error || 'Erro ao gerar conteúdo');
+            }
+
+            const result = await response.json();
+            this.showSuccess('Conteúdo gerado com sucesso!');
+
+            // Opcional: recarregar chats se o conteúdo gerado criar novos chats
+            await this.loadInitialData();
+
+        } catch (error) {
+            this.showError('Erro ao gerar conteúdo');
+            console.error('Erro:', error);
+        } finally {
+            this.setButtonLoading(submitBtn, false);
+        }
+    }
     async handleDeleteCategory(e) {
-        if (!e.target.classList.contains('delete-category')) return;
+        if (!e.target.classList.contains('btn-close')) return;
         
         const category = e.target.dataset.category;
         
@@ -182,7 +233,15 @@ class ChatApp {
         
         try {
             // Simular API call
-            await this.delay(1000);
+            const response = await fetch('/categoria/deletar/', {
+                method: 'POST',
+                body: JSON.stringify({ category: category }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
+            });
             
             this.categories = this.categories.filter(c => c !== category);
             
@@ -195,7 +254,7 @@ class ChatApp {
             this.renderCategoryTabs();
             this.renderChats();
             this.updateCategoriesSelect();
-            
+            this.updateGeneratorSelect();
             this.showSuccess('Categoria deletada com sucesso!');
             
         } catch (error) {
@@ -207,79 +266,107 @@ class ChatApp {
     }
     
     handleTabChange(e) {
-        if (!e.target.classList.contains('nav-link')) return;
-        
-        const tabId = e.target.getAttribute('data-bs-target');
-        if (tabId === '#all') {
-            this.activeTab = 'all';
-        } else {
-            this.activeTab = tabId.replace('#', '');
-        }
-        
-        this.renderChats();
-    }
-    
+    e.preventDefault();
+    e.stopPropagation(); // Impede que o Bootstrap interfira
+
+    if (!e.target.classList.contains('nav-link')) return;
+
+    // Remove classe active de todas as abas
+    const allTabs = document.querySelectorAll('#categoryTabs .nav-link');
+    allTabs.forEach(tab => tab.classList.remove('active'));
+
+    // Adiciona active na aba clicada
+    e.target.classList.add('active');
+
+    // Pega a categoria do data attribute
+    const category = e.target.getAttribute('data-category');
+
+    console.log('🎯 TAB CHANGE DEBUG:');
+    console.log('Tab clicada:', e.target.textContent);
+    console.log('Categoria:', category);
+
+    this.activeTab = category;
+    console.log('Nova aba ativa:', this.activeTab);
+
+    // Renderizar imediatamente
+    this.renderChats();
+}
+
     renderChats() {
         const container = document.getElementById('chats-container');
         const emptyState = document.getElementById('empty-state');
-        
-        const filteredChats = this.activeTab === 'all' 
-            ? this.chats 
-            : this.chats.filter(chat => chat.category === this.activeTab);
-        
+
+        const filteredChats = this.activeTab === 'all'
+            ? this.chats
+            : this.chats.filter(chat => {
+                const chatCategory = (chat.category || '').trim().toUpperCase();
+                return chatCategory === this.activeTab;
+            });
+
+        // ✅ ADICIONADO: Logs para debug
+        console.log('Renderizando chats para aba:', this.activeTab);
+        console.log('Chats filtrados:', filteredChats.length);
+        console.log('Todas as categorias dos chats:', this.chats.map(chat => chat.category));
+
         if (filteredChats.length === 0) {
             container.classList.add('d-none');
             emptyState.classList.remove('d-none');
             return;
         }
-        
+
         container.classList.remove('d-none');
         emptyState.classList.add('d-none');
-        
+
         container.innerHTML = filteredChats.map(chat => this.createChatCard(chat)).join('');
     }
     
     createChatCard(chat) {
-        const visualizationIcon = chat.visualizationType === 'mapa-mental' 
-            ? 'bi-diagram-3' 
-            : 'bi-diagram-2';
-        
-        const visualizationText = chat.visualizationType === 'mapa-mental' 
-            ? 'Mapa Mental' 
-            : 'Fluxograma';
+        const category = chat.category || 'Sem Categoria';
+    const visualizationType = chat.visualizationType || '';
+    const visualizationIcon = visualizationType === 'mapa-mental'
+        ? 'bi-diagram-3'
+        : 'bi-diagram-2';
+    const visualizationText = visualizationType === 'mapa-mental'
+        ? 'Mapa Mental'
+        : 'Fluxograma';
+    const timestamp = chat.timestamp ? this.formatTimestamp(chat.timestamp) : '';
+    const message = chat.message || '';
+    const id = chat.id || '';
+
         
         return `
-            <div class="card chat-card mb-3">
-                <div class="card-header bg-white border-0 pb-2">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex gap-2">
-                            <span class="badge bg-outline-primary category-badge text-capitalize">${chat.category}</span>
-                            <span class="badge bg-secondary visualization-badge d-flex align-items-center gap-1">
-                                <i class="bi ${visualizationIcon}"></i>
-                                <span>${visualizationText}</span>
-                            </span>
-                        </div>
-                        <small class="text-muted">${this.formatTimestamp(chat.timestamp)}</small>
+        <div class="card chat-card mb-3">
+            <div class="card-header bg-white border-0 pb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-outline-primary category-badge text-capitalize">${category}</span>
+                        <span class="badge bg-secondary visualization-badge d-flex align-items-center gap-1">
+                            <i class="bi ${visualizationIcon}"></i>
+                            <span>${visualizationText}</span>
+                        </span>
                     </div>
-                </div>
-                <div class="card-body pt-0">
-                    <p class="card-text">${chat.message}</p>
-                </div>
-                <div class="card-footer bg-transparent border-0 pt-0">
-                    <small class="text-muted">ID: ${chat.id}</small>
+                    <small class="text-muted">${timestamp}</small>
                 </div>
             </div>
-        `;
+            <div class="card-body pt-0">
+                <p class="card-text">${message}</p>
+            </div>
+            <div class="card-footer bg-transparent border-0 pt-0">
+                <small class="text-muted">ID: ${id}</small>
+            </div>
+        </div>
+    `;
+
     }
     
     renderCategories() {
         const container = document.getElementById('categories-container');
-        
+
         if (this.categories.length === 0) {
             container.innerHTML = '<p class="text-muted text-center">Nenhuma categoria criada</p>';
             return;
         }
-        
+
         container.innerHTML = this.categories.map(category => `
             <span class="badge bg-secondary me-2 mb-2 d-inline-flex align-items-center">
                 ${category.charAt(0).toUpperCase() + category.slice(1)}
@@ -288,34 +375,46 @@ class ChatApp {
             </span>
         `).join('');
     }
-    
-    renderCategoryTabs() {
+
+        renderCategoryTabs() {
         const tabsContainer = document.getElementById('categoryTabs');
-        
+
+        if (!tabsContainer) {
+            console.error('Container de tabs não encontrado');
+            return;
+        }
+
         let tabsHTML = `
             <li class="nav-item" role="presentation">
                 <button class="nav-link ${this.activeTab === 'all' ? 'active' : ''}" 
-                        data-bs-toggle="pill" data-bs-target="#all" type="button" role="tab">
+                        data-category="all" type="button" role="tab">
                     Todos (<span id="all-count">${this.chats.length}</span>)
                 </button>
             </li>
         `;
-        
+
         this.categories.forEach(category => {
-            const count = this.chats.filter(chat => chat.category === category).length;
+            const count = this.chats.filter(chat => {
+                const chatCategory = (chat.category || chat.categoria || '').trim().toUpperCase();
+                return chatCategory === category.toUpperCase();
+            }).length;
+
+            const categoryDisplay = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
+
             tabsHTML += `
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link ${this.activeTab === category ? 'active' : ''}" 
-                            data-bs-toggle="pill" data-bs-target="#${category}" type="button" role="tab">
-                        ${category.charAt(0).toUpperCase() + category.slice(1)} (${count})
+                    <button class="nav-link ${this.activeTab === category.toUpperCase() ? 'active' : ''}" 
+                            data-category="${category.toUpperCase()}" type="button" role="tab">
+                        ${categoryDisplay} (${count})
                     </button>
                 </li>
             `;
         });
-        
+
         tabsContainer.innerHTML = tabsHTML;
-    }
-    
+
+        }
+
     updateCategoriesSelect() {
         const select = document.getElementById('category');
         
@@ -328,7 +427,18 @@ class ChatApp {
             select.appendChild(option);
         });
     }
-    
+    updateGeneratorSelect() {
+        const select = document.getElementById('generatorCategory');
+
+        select.innerHTML = '<option value="">Selecione uma categoria</option>';
+
+        this.categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
+            select.appendChild(option);
+        });
+    }
     formatTimestamp(timestamp) {
         const date = new Date(timestamp);
         const now = new Date();
@@ -369,6 +479,9 @@ class ChatApp {
                 button.innerHTML = '<i class="bi bi-send me-2"></i>Enviar';
             } else if (button.id === 'addCategoryBtn') {
                 button.innerHTML = '<i class="bi bi-plus"></i>';
+
+            } else if (button.id === 'generateBtn') {
+                button.innerHTML = '<i class="bi bi-magic me-2"></i>Gerar';
             } else {
                 button.innerHTML = '<i class="bi bi-trash"></i>';
             }
