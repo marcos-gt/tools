@@ -6,6 +6,7 @@ class ChatApp {
         this.categories = [];
         this.activeTab = 'all';
         this.loading = false;
+        this.output = '';
         this.init();
     }
     
@@ -18,14 +19,11 @@ class ChatApp {
         // Form de adicionar chat
         document.getElementById('chatForm').addEventListener('submit', this.handleAddChat.bind(this));
         document.getElementById('categoryForm').addEventListener('submit', this.handleAddCategory.bind(this));
-        // Form de adicionar categoria
-          document.getElementById('generatorForm').addEventListener('submit', this.handleGenerate.bind(this));
-        
-        // Delegação de eventos para deletar categorias
+
+        document.getElementById('generatorForm').addEventListener('submit', this.handleGenerate.bind(this));
         document.getElementById('categories-container').addEventListener('click', this.handleDeleteCategory.bind(this));
-        
-        // Delegação de eventos para tabs
         document.getElementById('categoryTabs').addEventListener('click', this.handleTabChange.bind(this));
+
     }
     
     async loadInitialData() {
@@ -65,7 +63,38 @@ class ChatApp {
     }
 
     }
-    
+
+    async handleGerarMap() {
+    try {
+        if (!this.output) {
+            console.error('Nenhum output encontrado');
+            return;
+        }
+
+        console.log('Gerando mapa com conteúdo:', this.output);
+
+        if (window.renderMermaid) {
+            await window.renderMermaid('cardmap', this.output);
+        } else {
+            console.error('Função renderMermaid não disponível');
+            // Fallback: inserir texto apenas
+            const mapElement = document.getElementById('cardmap');
+            if (mapElement) {
+                mapElement.innerHTML = this.output;
+            }
+        }
+
+        console.log('Mapa renderizado com sucesso');
+
+    } catch (error) {
+        console.error('Erro ao gerar mapa:', error);
+        this.showError('Erro ao renderizar o mapa mental');
+    }
+    }
+
+
+
+
     async handleAddChat(e) {
         e.preventDefault();
         
@@ -177,7 +206,7 @@ class ChatApp {
     }
     async handleGenerate(e) {
         e.preventDefault();
-
+        document.getElementById('cardmap').classList.remove('d-none');
         const form = e.target;
         const formData = new FormData(form);
         const category = formData.get('generatorCategory');
@@ -192,23 +221,28 @@ class ChatApp {
 
         try {
             // Fazer requisição para API de geração
-            const response = await fetch('/gerar/conteudo/', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                credentials: 'same-origin',
-            });
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-            if (!response.ok) {
-                const result = await response.json();
-                throw new Error(result.error || 'Erro ao gerar conteúdo');
-            }
+            const response = await fetch('/', {  // ✅ URL específica se necessário
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken,
+            },
+            credentials: 'same-origin',
+        });
 
+        if (!response.ok) {
             const result = await response.json();
-            this.showSuccess('Conteúdo gerado com sucesso!');
+            throw new Error(result.error || 'Erro ao gerar conteúdo');
+        }
 
+        const result = await response.json();
+        this.output = result.output;
+
+
+            await this.handleGerarMap();
             // Opcional: recarregar chats se o conteúdo gerado criar novos chats
             await this.loadInitialData();
 
@@ -302,11 +336,6 @@ class ChatApp {
                 const chatCategory = (chat.category || '').trim().toUpperCase();
                 return chatCategory === this.activeTab;
             });
-
-        // ✅ ADICIONADO: Logs para debug
-        console.log('Renderizando chats para aba:', this.activeTab);
-        console.log('Chats filtrados:', filteredChats.length);
-        console.log('Todas as categorias dos chats:', this.chats.map(chat => chat.category));
 
         if (filteredChats.length === 0) {
             container.classList.add('d-none');

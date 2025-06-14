@@ -1,9 +1,12 @@
 from selectors import SelectSelector
+from django.shortcuts import get_object_or_404
 
 from django.shortcuts import render
 from django.http import JsonResponse
 import ollama
 from django.contrib.auth.decorators import login_required
+
+from categoria.views import categoria
 from chat.models import Chat
 from categoria.models import Categoria
 import pprint
@@ -14,27 +17,90 @@ import pprint
 @login_required
 def index(request):
     if request.method == "POST":
-        user_input = request.POST.get('prompt', '')
+        categoria_name = request.POST.get('generatorCategory')
+
+        if not categoria_name:
+            return JsonResponse({
+                'error': 'Categoria é obrigatória'
+            }, status=400)
+
         try:
+            chats_exato = Chat.objects.filter(usuario=request.user, categoria__nome=categoria_name)
+            chats_iexact = Chat.objects.filter(usuario=request.user, categoria__nome__iexact=categoria_name)
+            chats_contains = Chat.objects.filter(usuario=request.user, categoria__nome__icontains=categoria_name)
+
+            if chats_iexact.exists():
+                chats = chats_iexact
+            elif chats_contains.exists():
+                chats = chats_contains
+            else:
+                chats = chats_exato
+
+            if chats.exists():
+                chats_texto = "\n".join([
+                    f"- {chat.message}"
+                    for chat in chats[:10]  # Limitar a 10 chats para não sobrecarregar
+                ])
+
+                categoria = chats.first().categoria
+                categoria_nome = categoria.nome if categoria else "Categoria desconhecida"
+
+            else:
+                chats_texto = "Nenhuma conversa encontrada para esta categoria."
+                categoria_nome = categoria_name
+
+
             response = ollama.chat(
                 model="deepseek-r1:7b",
                 messages=[
-                    {"role": "user", "content": '''
-                    "Sempre que eu pedir um fluxograma, 
-                    responda usando a sintaxe do Mermaid (como no exemplo abaixo), 
-                    formatado em código markdown com 
-                    ```mermaid. Inclua um título descritivo e explique os passos opcionalmente, se sempre em português. 
-                    Exemplo:  ```mermaid flowchart TD     A["Start"] --> B["Step 1"]     B --> C["Step 2"]     C --> D[End]. 
-                    ''' + user_input},
+                    {"role": "user", "content": f'''
+                    Crie um mapa mental usando APENAS a sintaxe Mermaid.
+                    Responda SÓ com o código, sem explicações.
+
+                    Use o formato:
+                    flowchart TD
+                        A["Tópico Central"] --> B["Subtópico 1"]
+                        A --> C["Subtópico 2"]
+                        B --> D["Detalhe 1"]
+                        C --> E["Detalhe 2"]
+
+                    Regras importantes:
+                    - Use [ ] para tópicos normais
+                    - Use {{ }} para decisões
+                    - Use ( ) para processos
+                    - Use | | para comentários nas setas
+                    - Mantenha em português                
+                    - Utilize quebras de linha para organizar o código
+                    
+                    Categoria: {categoria_nome}
+                    Conversas: {chats_texto}
+
+                    Crie um mapa mental organizado e criativo sobre este tema.
+                    '''},
                 ],
             )
+
+            print(f'Response recebida: {response["message"]["content"][:200]}...')
+
+            # MUDANÇA: Retornar 'output' em vez de 'response'
+            mermaid_content = response["message"]["content"].split("</think>", 1)[-1].strip().replace("```mermaid ", "").replace("```", "").strip()
+
             return JsonResponse({
-                'response': response["message"]["content"].split("</think>", 1)[-1].strip()
+                'output': mermaid_content,
+                'categoria': categoria_nome,
+                'total_chats': chats.count()
             })
+
         except Exception as e:
+            print(f"Erro completo: {str(e)}")
+            print(f"Tipo do erro: {type(e)}")
+            import traceback
+            traceback.print_exc()
+
             return JsonResponse({
-                'error': str(e)
+                'error': f'Erro interno: {str(e)}'
             }, status=500)
+
     # Quando for GET, cai aqui:
     categorias = Categoria.objects.filter(ativa=True).order_by('nome')
     chats = Chat.objects.filter(usuario=request.user).order_by('-timestamp')
@@ -61,8 +127,6 @@ def index(request):
         }
         for cat in categorias
     ]
-    pprint.pprint(chats_lista)
-    pprint.pprint(categorias_lista)
 
     return render(request, 'index.html', {
         'chats': chats_lista,
