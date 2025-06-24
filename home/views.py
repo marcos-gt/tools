@@ -44,18 +44,19 @@ def index(request):
 
                 categoria = chats.first().categoria
                 categoria_nome = categoria.nome if categoria else "Categoria desconhecida"
-
             else:
                 chats_texto = "Nenhuma conversa encontrada para esta categoria."
                 categoria_nome = categoria_name
 
+            print(f'categoria_name: {categoria_name}')
+            print(f'chats: {chats}')
 
             response = ollama.chat(
                 model="deepseek-r1:7b",
                 messages=[
                     {"role": "user", "content": f'''
                     Crie um mapa mental usando APENAS a sintaxe Mermaid.
-                    Responda SÓ com o código, sem explicações.
+                    Responda SÓ com o código, sem explicações, se for menor que 10 cards use a criatividade para contribuir.
 
                     Use o formato:
                     flowchart TD

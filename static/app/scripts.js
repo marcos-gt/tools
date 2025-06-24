@@ -5,7 +5,6 @@ class ChatApp {
         this.chats = [];
         this.categories = [];
         this.activeTab = 'all';
-        this.loading = false;
         this.output = '';
         this.init();
     }
@@ -16,14 +15,11 @@ class ChatApp {
     }
     
     bindEvents() {
-        // Form de adicionar chat
         document.getElementById('chatForm').addEventListener('submit', this.handleAddChat.bind(this));
         document.getElementById('categoryForm').addEventListener('submit', this.handleAddCategory.bind(this));
-
         document.getElementById('generatorForm').addEventListener('submit', this.handleGenerate.bind(this));
         document.getElementById('categories-container').addEventListener('click', this.handleDeleteCategory.bind(this));
         document.getElementById('categoryTabs').addEventListener('click', this.handleTabChange.bind(this));
-
     }
     
     async loadInitialData() {
@@ -77,14 +73,12 @@ class ChatApp {
             await window.renderMermaid('cardmap', this.output);
         } else {
             console.error('Função renderMermaid não disponível');
-            // Fallback: inserir texto apenas
+
             const mapElement = document.getElementById('cardmap');
             if (mapElement) {
                 mapElement.innerHTML = this.output;
             }
         }
-
-        console.log('Mapa renderizado com sucesso');
 
     } catch (error) {
         console.error('Erro ao gerar mapa:', error);
@@ -144,8 +138,8 @@ class ChatApp {
             
             // Limpar formulário
             form.reset();
-            
-            this.showSuccess('Chat adicionado com sucesso!');
+
+            window.location.reload();
             
         } catch (error) {
             this.showError('Erro ao adicionar chat');
@@ -386,6 +380,7 @@ class ChatApp {
         </div>
     `;
 
+
     }
     
     renderCategories() {
@@ -557,19 +552,45 @@ class ChatApp {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 }
+function getCsrfToken() {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrftoken') {
+            return value;
+        }
+    }
+    return '';
+}
 
-// Função de logout
-function logout() {
+async function logout() {
     if (confirm('Tem certeza que deseja sair?')) {
-        // Limpar dados de autenticação
-        localStorage.removeItem('authToken');
-        
-        // Redirecionar para login (se existir)
-        window.location.href = 'login.html';
+        try {
+            const response = await fetch('/login/logout/', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': getCsrfToken(),
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin'
+            });
+            if (response.ok) {
+                localStorage.clear();
+                sessionStorage.clear();
+
+                window.location.href = '/login/?next=/';
+            } else {
+                throw new Error('Erro no logout');
+            }
+        } catch (error) {
+            console.error('Erro no logout:', error);
+            alert('Erro ao fazer logout. Tente novamente.');
+        }
     }
 }
 
-// Inicializar aplicação quando DOM estiver carregado
+
 document.addEventListener('DOMContentLoaded', () => {
     new ChatApp();
 });

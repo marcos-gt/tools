@@ -218,8 +218,8 @@
                     <div class="card shadow-sm" id="carddeep" style="margin-top:25px;">
                         <div class="card-header bg-warning text-dark">
                             <h6 class="card-title mb-0">
-                                <i class="bi bi-magic me-2"></i>
-                                Gerar Conteúdo
+                                <i class="bi bi-gear me-2"></i>
+                                Gerenciar Conteúdo
                             </h6>
                         </div>
 
@@ -234,10 +234,16 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <button type="submit" class="btn btn-warning w-100" id="generateBtn">
-                                    <i class="bi bi-magic me-2"></i>
-                                    Gerar
-                                </button>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button type="submit" class="btn btn-warning w-40" id="generateBtn">
+                                        <i class="bi bi-magic me-2"></i>
+                                        Gerar
+                                    </button>
+                                    <button type="submit" class="btn btn-danger w-40" id="deleteBtn">
+                                        <i class="bi bi-trash me-2"></i>
+                                        Deletar
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -277,12 +283,11 @@
     const element = document.getElementById(elementId);
     if (!element) return;
 
-    // Limpar conteúdo anterior
+
     element.innerHTML = content;
     element.classList.add('mermaid');
     element.removeAttribute('data-processed');
 
-    // Re-renderizar
     try {
       await mermaid.run({
         nodes: [element]
@@ -290,7 +295,6 @@
       console.log('Mermaid re-renderizado com sucesso');
     } catch (error) {
       console.error('Erro ao renderizar Mermaid:', error);
-      // Fallback: tentar método antigo
       try {
         await mermaid.init();
       } catch (e) {
