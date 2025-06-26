@@ -1,5 +1,3 @@
-
-
 class ChatApp {
     constructor() {
         this.chats = [];
@@ -25,7 +23,6 @@ class ChatApp {
     async loadInitialData() {
         this.setLoading(true);
         try {
-        // 1. Buscar conversas da API
         const chatsResp = await fetch('/chat/meus/');
         if (!chatsResp.ok)
             throw new Error('Erro ao carregar conversas');
@@ -33,10 +30,8 @@ class ChatApp {
 
         this.chats = chatsData.chats.map(chat => ({
             ...chat,
-            // aceita tanto "category" quanto "categoria"
              category: (chat.category || chat.categoria || "").trim().toUpperCase()
         }));
-
 
         const categoriesResp = await fetch('/categoria/lista');
         if (!categoriesResp.ok)
@@ -150,74 +145,166 @@ class ChatApp {
     }
     
     async handleAddCategory(e) {
-        e.preventDefault();
-        
-        const form = e.target;
-        const formData = new FormData(form);
-        const category = formData.get('newCategory').trim().toUpperCase();
-        
-        if (!category) {
-            this.showError('Nome da categoria é obrigatório');
-            return;
-        }
-        
-        if (this.categories.includes(category)) {
-            this.showError('Esta categoria já existe');
-            return;
-        }
-        
-        const submitBtn = form.querySelector('#addCategoryBtn');
-        this.setButtonLoading(submitBtn, true);
-        
-        try {
-            // REVISAR ISSO!
-            const response = await fetch('/categoria/nova/', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                credentials: 'same-origin',
-            });
-
-            this.categories.push(category);
-            this.renderCategories();
-            this.renderCategoryTabs();
-            this.updateCategoriesSelect();
-            this.updateGeneratorSelect();
-            
-            // Limpar formulário
-            form.reset();
-            
-            this.showSuccess('Categoria adicionada com sucesso!');
-            
-        } catch (error) {
-            this.showError('Erro ao adicionar categoria');
-            console.error('Erro:', error);
-        } finally {
-            this.setButtonLoading(submitBtn, false);
-        }
+    e.preventDefault();
+    console.log('ADICIONANDO CATEGORIA DEBUG inicio');
+    
+    const form = e.target;
+    const formData = new FormData(form);
+    
+    // ✅ Buscar tanto pelo name quanto pelo ID
+    let category = formData.get('newCategory');
+    if (!category) {
+        // Fallback: buscar pelo ID se não encontrar pelo name
+        const input = document.getElementById('newCategoryInput');
+        category = input ? input.value : null;
     }
-    async handleGenerate(e) {
-        e.preventDefault();
-        document.getElementById('cardmap').classList.remove('d-none');
-        const form = e.target;
-        const formData = new FormData(form);
-        const category = formData.get('generatorCategory');
+    
+    console.log('Categoria encontrada:', category);
+    
+    if (!category || !category.trim()) {
+        this.showError('Nome da categoria é obrigatório');
+        return;
+    }
+    
+    category = category.trim().toUpperCase();
+    
+    if (this.categories.includes(category)) {
+        this.showError('Esta categoria já existe');
+        return;
+    }
+    
+    const submitBtn = form.querySelector('#addCategoryBtn');
+    this.setButtonLoading(submitBtn, true);
+    
+    console.log('ADICIONANDO CATEGORIA DEBUG:', category);
+    
+    try {
+        // ✅ Usar a URL correta para adicionar categoria
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        const response = await fetch('/categoria/receberCategorias/', {
+            method: 'POST',
+            body: JSON.stringify({
+                nome: category
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken,
+            },
+            credentials: 'same-origin',
+        });
 
-        if (!category) {
-            this.showError('Selecione uma categoria');
-            return;
+        if (!response.ok) {
+            const result = await response.json();
+            throw new Error(result.error || 'Erro ao adicionar categoria');
         }
 
-        const submitBtn = form.querySelector('#generateBtn');
-        this.setButtonLoading(submitBtn, true);
+        const result = await response.json();
+        console.log('Categoria adicionada:', result);
 
-        try {
-            // Fazer requisição para API de geração
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        // Adicionar à lista local
+        this.categories.push(category);
+        this.renderCategories();
+        this.renderCategoryTabs();
+        this.updateCategoriesSelect();
+        this.updateGeneratorSelect();
+        
+        // Limpar formulário
+        form.reset();
+        
+        this.showSuccess('Categoria adicionada com sucesso!');
+        
+    } catch (error) {
+        this.showError('Erro ao adicionar categoria: ' + error.message);
+        console.error('Erro:', error);
+    } finally {
+        this.setButtonLoading(submitBtn, false);
+    }
+}
+    async handleInactivateCategory(e) {
+    const form = e.target;
+    const formData = new FormData(form);
+    const category = formData.get('generatorCategory');
 
-            const response = await fetch('/', {  // ✅ URL específica se necessário
+    if (!category) {
+        this.showError('Selecione uma categoria para inativar');
+        return;
+    }
+
+    if (!confirm(`Tem certeza que deseja inativar a categoria "${category}"?\n\nTodos os chats desta categoria ficarão ocultos.`)) {
+        return;
+    }
+
+    const deleteBtn = form.querySelector('#deleteBtn');
+    this.setButtonLoading(deleteBtn, true);
+    console.log('DELETE DEBUG:');
+    try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const response = await fetch('/categoria/inativar/', {
+            method: 'POST',
+            body: JSON.stringify({
+                category: category,
+                action: 'inactivate'
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken,
+            },
+            credentials: 'same-origin',
+        });
+        console.log('DELETE passou aqui');
+        if (!response.ok) {
+            const result = await response.json();
+            throw new Error(result.error || 'Erro ao inativar categoria');
+        }
+
+        const result = await response.json();
+        console.log(result)
+        this.showSuccess(`Categoria "${category}" foi inativada com sucesso!`);
+
+        // Recarregar os dados para refletir as mudanças
+        await this.loadInitialData();
+
+        // Limpar o formulário
+        form.reset();
+
+    } catch (error) {
+        this.showError('Erro ao inativar categoria');
+        console.error('Erro:', error);
+    } finally {
+        this.setButtonLoading(deleteBtn, false);
+    }
+    }
+
+    async handleGenerate(e) {
+    e.preventDefault();
+    const isDeleteAction = e.submitter && e.submitter.id === 'deleteBtn';
+
+    if (isDeleteAction) {
+        await this.handleInactivateCategory(e);
+        return;
+    }
+
+    document.getElementById('cardmap').classList.remove('d-none');
+    const form = e.target;
+    const formData = new FormData(form);
+    const category = formData.get('generatorCategory');
+
+    if (!category) {
+        this.showError('Selecione uma categoria');
+        return;
+    }
+
+    const submitBtn = form.querySelector('#generateBtn');
+    this.setButtonLoading(submitBtn, true);
+
+    try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const response = await fetch('/', {
             method: 'POST',
             body: formData,
             headers: {
@@ -235,18 +322,73 @@ class ChatApp {
         const result = await response.json();
         this.output = result.output;
 
+        await this.handleGerarMap();
+        await this.loadInitialData();
 
-            await this.handleGerarMap();
-            // Opcional: recarregar chats se o conteúdo gerado criar novos chats
-            await this.loadInitialData();
-
-        } catch (error) {
-            this.showError('Erro ao gerar conteúdo');
-            console.error('Erro:', error);
-        } finally {
-            this.setButtonLoading(submitBtn, false);
-        }
+    } catch (error) {
+        this.showError('Erro ao gerar conteúdo');
+        console.error('Erro:', error);
+    } finally {
+        this.setButtonLoading(submitBtn, false);
     }
+}
+    async handleDeleteChats(e) {
+    const form = e.target;
+    const formData = new FormData(form);
+    const category = formData.get('generatorCategory');
+
+    if (!category) {
+        this.showError('Selecione uma categoria para inativar');
+        return;
+    }
+
+    if (!confirm(`Tem certeza que deseja inativar a categoria "${category}"?\n\nTodos os chats desta categoria não aparecerão mais na interface.`)) {
+        return;
+    }
+
+    const deleteBtn = form.querySelector('#deleteBtn');
+    this.setButtonLoading(deleteBtn, true);
+
+    try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const response = await fetch('/chat/inativar/', {
+            method: 'POST',
+            body: JSON.stringify({
+                category: category,
+                action: 'inactivate'
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken,
+            },
+            credentials: 'same-origin',
+        });
+
+        if (!response.ok) {
+            const result = await response.json();
+            throw new Error(result.error || 'Erro ao inativar chats');
+        }
+
+        const result = await response.json();
+
+        this.showSuccess(`${result.count || 0} chats foram inativados com sucesso!`);
+
+        // Recarregar os dados para refletir as mudanças
+        await this.loadInitialData();
+
+        // Limpar o formulário
+        form.reset();
+
+    } catch (error) {
+        this.showError('Erro ao inativar chats');
+        console.error('Erro:', error);
+    } finally {
+        this.setButtonLoading(deleteBtn, false);
+    }
+    }
+
     async handleDeleteCategory(e) {
         if (!e.target.classList.contains('btn-close')) return;
         
@@ -493,24 +635,26 @@ class ChatApp {
     }
     
     setButtonLoading(button, loading) {
-        if (loading) {
-            button.disabled = true;
-            button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Carregando...';
+    if (loading) {
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Carregando...';
+    } else {
+        button.disabled = false;
+        // Restaurar texto original baseado no ID do botão
+        if (button.id === 'submitBtn') {
+            button.innerHTML = '<i class="bi bi-send me-2"></i>Enviar';
+        } else if (button.id === 'addCategoryBtn') {
+            button.innerHTML = '<i class="bi bi-plus"></i>';
+        } else if (button.id === 'generateBtn') {
+            button.innerHTML = '<i class="bi bi-magic me-2"></i>Gerar';
+        } else if (button.id === 'deleteBtn') {
+            button.innerHTML = '<i class="bi bi-trash me-2"></i>Deletar';
         } else {
-            button.disabled = false;
-            // Restaurar texto original baseado no ID do botão
-            if (button.id === 'submitBtn') {
-                button.innerHTML = '<i class="bi bi-send me-2"></i>Enviar';
-            } else if (button.id === 'addCategoryBtn') {
-                button.innerHTML = '<i class="bi bi-plus"></i>';
-
-            } else if (button.id === 'generateBtn') {
-                button.innerHTML = '<i class="bi bi-magic me-2"></i>Gerar';
-            } else {
-                button.innerHTML = '<i class="bi bi-trash"></i>';
-            }
+            button.innerHTML = '<i class="bi bi-trash"></i>';
         }
     }
+    }
+
     
     showError(message) {
         const toast = document.getElementById('errorToast');

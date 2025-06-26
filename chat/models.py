@@ -8,6 +8,7 @@ class Chat(models.Model):
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     visualizationType = models.CharField(max_length=50, default='text')
+    ativo = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.usuario}: {self.message[:20]}..."

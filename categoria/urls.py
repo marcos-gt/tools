@@ -6,4 +6,6 @@ urlpatterns = [
     path('lista/', views.list_all, name='lista_categorias'),
     path ('renderizar/', views.renderizar, name='renderizar_categoria'),
     path('receberCategorias/', views.receberCategorias, name='receber_categorias'),
+    path('inativar/', views.inativar_categoria, name='inativar_categoria'),
+
 ]
