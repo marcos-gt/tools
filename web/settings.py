@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-vhsc79^mla6srp9y)o^h$$*osugvy*3vgf3)dg2=x9i(*2w72-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 LOGIN_REDIRECT_URL = '/login/'
 LOGIN_URL = '/login/'
 
@@ -122,7 +122,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': 'postgres',
         'HOST': '127.0.0.1',
-        'PORT': '5433',
+        'PORT': '5432',
     }
 }
 

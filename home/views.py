@@ -56,7 +56,7 @@ def index(request):
                 messages=[
                     {"role": "user", "content": f'''
                     Crie um mapa mental usando APENAS a sintaxe Mermaid.
-                    Responda SÓ com o código, sem explicações, se for menor que 10 cards use a criatividade para contribuir.
+                    Responda SÓ com o código, sem explicações, se for menor que 10 cards use a criatividade para contribuir, caso contrario não acrescente.
 
                     Use o formato:
                     flowchart TD
@@ -70,7 +70,7 @@ def index(request):
                     - Use {{ }} para decisões
                     - Use ( ) para processos
                     - Use | | para comentários nas setas 
-                    - Mantenha em português                
+                    - Mantenha suas respostas em português                
                     - Utilize quebras de linha para organizar o código
                     
                     Categoria: {categoria_nome}
