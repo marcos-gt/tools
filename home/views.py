@@ -69,7 +69,7 @@ def index(request):
                     - Use [ ] para tópicos normais
                     - Use {{ }} para decisões
                     - Use ( ) para processos
-                    - Use | | para comentários nas setas
+                    - Use | | para comentários nas setas 
                     - Mantenha em português                
                     - Utilize quebras de linha para organizar o código
                     
@@ -83,7 +83,6 @@ def index(request):
 
             print(f'Response recebida: {response["message"]["content"][:200]}...')
 
-            # MUDANÇA: Retornar 'output' em vez de 'response'
             mermaid_content = response["message"]["content"].split("</think>", 1)[-1].strip().replace("```mermaid ", "").replace("```", "").strip()
 
             return JsonResponse({
@@ -113,7 +112,6 @@ def index(request):
             "message": chat.message,
             "timestamp": chat.timestamp.isoformat(),
             "category": chat.categoria.nome.upper() if chat.categoria else "",
-            # adicione outros campos se precisar
         }
         for chat in chats
     ]

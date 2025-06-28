@@ -297,6 +297,12 @@ class ChatApp {
         this.showError('Selecione uma categoria');
         return;
     }
+// Obter informações da categoria
+    const categorySelect = document.getElementById('generatorCategory');
+    const categoryName = categorySelect.options[categorySelect.selectedIndex].text;
+
+    // Obter tipo de visualização se disponível
+    const visualizationType = formData.get('visualizationType') || 'mapa-mental';
 
     const submitBtn = form.querySelector('#generateBtn');
     this.setButtonLoading(submitBtn, true);
@@ -322,8 +328,20 @@ class ChatApp {
         const result = await response.json();
         this.output = result.output;
 
+        // Renderizar no card principal também
         await this.handleGerarMap();
         await this.loadInitialData();
+
+        // ✅ Mostrar modal dinâmico
+        const chatsCount = this.chats.filter(chat =>
+            chat.category && chat.category.toUpperCase() === categoryName.toUpperCase()
+        ).length;
+
+        this.showGeneratedModal(categoryName, this.output, {
+            chatsUsed: chatsCount,
+            visualizationType: visualizationType,
+            generatedAt: new Date().toISOString()
+        });
 
     } catch (error) {
         this.showError('Erro ao gerar conteúdo');
@@ -331,6 +349,7 @@ class ChatApp {
     } finally {
         this.setButtonLoading(submitBtn, false);
     }
+
 }
     async handleDeleteChats(e) {
     const form = e.target;
@@ -695,6 +714,418 @@ class ChatApp {
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
+
+createGeneratedModal() {
+    // Verificar se já existe um modal
+    const existingModal = document.getElementById('generatedContentModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    // Criar o modal HTML dinamicamente
+    const modalHTML = `
+        <div class="modal fade" id="generatedContentModal" tabindex="-1" aria-labelledby="generatedContentModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 80vw; max-height: 80vh;">
+                <div class="modal-content" style="height: 80vh;">
+                    <div class="modal-header bg-gradient text-white" style="background: linear-gradient(45deg, #667eea, #764ba2);">
+                        <h5 class="modal-title d-flex align-items-center" id="generatedContentModalLabel">
+                            <i class="bi bi-diagram-3 me-2"></i>
+                            Mapa Mental Gerado
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0" style="height: calc(80vh - 120px); overflow: hidden;">
+                        <!-- Cabeçalho com informações -->
+                        <div class="p-3 border-bottom bg-light">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h6 class="mb-1">
+                                        <span class="badge bg-primary me-2" id="modalCategoryBadge">Categoria</span>
+                                        <span class="text-success">✓ Gerado com sucesso</span>
+                                    </h6>
+                                    <p class="mb-0 text-muted" id="modalDescription">
+                                        Mapa mental baseado nas suas conversas
+                                    </p>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <!-- Controles de Zoom -->
+                                    <div class="btn-group" role="group" aria-label="Controles de zoom">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="zoomOutBtn" title="Diminuir zoom">
+                                            <i class="bi bi-zoom-out"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="resetZoomBtn" title="Resetar zoom">
+                                            <span id="zoomLevel">100%</span>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="zoomInBtn" title="Aumentar zoom">
+                                            <i class="bi bi-zoom-in"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4 text-end">
+                                    <small class="text-muted" id="modalTimestamp">
+                                        Gerado agora
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Área do conteúdo gerado -->
+                        <div class="h-100 d-flex align-items-center justify-content-center" style="min-height: 500px;">
+                            <div id="modalMermaidContent" class="w-100 h-100 d-flex align-items-center justify-content-center">
+                                <!-- Loading inicial -->
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary mb-3" role="status">
+                                        <span class="visually-hidden">Carregando...</span>
+                                    </div>
+                                    <p class="text-muted">Renderizando diagrama...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <div class="row w-100 align-items-center">
+                            <div class="col-md-6">
+                                <small class="text-muted" id="modalStats">
+                                    Baseado em 0 conversas
+                                </small>
+                            </div>
+                            <div class="col-md-6 text-end">
+<!--                                <button type="button" class="btn btn-outline-secondary me-2" onclick="downloadMermaid()">-->
+<!--                                    <i class="bi bi-download me-1"></i>-->
+<!--                                    Baixar-->
+<!--                                </button>-->
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                                    <i class="bi bi-check-lg me-1"></i>
+                                    Fechar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Adicionar o modal ao body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    this.setupZoomControls();
+
+    // Adicionar event listener para limpar quando fechado
+    const modal = document.getElementById('generatedContentModal');
+    modal.addEventListener('hidden.bs.modal', () => {
+        modal.remove(); // Remove completamente do DOM
+    });
+const style = document.createElement('style');
+style.textContent = `
+    @media (max-width: 768px) {
+        #generatedContentModal .modal-dialog {
+            max-width: 95vw !important;
+            max-height: 90vh !important;
+        }
+        
+        #generatedContentModal .modal-content {
+            height: 90vh !important;
+        }
+        
+        #modalMermaidContent .mermaid {
+            font-size: 12px;
+        }
+    }
+    
+    #modalMermaidContent .mermaid {
+        background: white !important;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+`;
+document.head.appendChild(style);
+
+    return modal;
+}
+setupZoomControls() {
+    // ✅ Usar setTimeout para garantir que o DOM foi atualizado
+    setTimeout(() => {
+        let currentZoom = 1; // 100%
+        const zoomStep = 0.2; // 20% por clique
+        const minZoom = 0.2;  // 20% mínimo
+        const maxZoom = 3;    // 300% máximo
+
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const resetZoomBtn = document.getElementById('resetZoomBtn');
+        const zoomLevel = document.getElementById('zoomLevel');
+        const mermaidContent = document.getElementById('modalMermaidContent');
+        const container = document.getElementById('mermaidContainer');
+
+        console.log('Todos os elementos encontrados, configurando zoom...');
+
+        // Função para atualizar o zoom
+        const updateZoom = (newZoom) => {
+            currentZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+
+            // Aplicar transformação
+            mermaidContent.style.transform = `scale(${currentZoom})`;
+
+            // Atualizar display do nível de zoom
+            zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
+
+            // Atualizar estado dos botões
+            zoomInBtn.disabled = currentZoom >= maxZoom;
+            zoomOutBtn.disabled = currentZoom <= minZoom;
+
+            // Ajustar scroll do container se necessário
+            if (currentZoom > 1) {
+                container.style.overflow = 'auto';
+            } else {
+                container.style.overflow = 'hidden';
+            }
+        };
+
+        // Event listeners dos botões
+        zoomInBtn.addEventListener('click', () => {
+            updateZoom(currentZoom + zoomStep);
+        });
+
+        zoomOutBtn.addEventListener('click', () => {
+            updateZoom(currentZoom - zoomStep);
+        });
+
+        resetZoomBtn.addEventListener('click', () => {
+            updateZoom(1);
+            // Resetar posição do scroll
+            container.scrollTop = 0;
+            container.scrollLeft = 0;
+        });
+
+        // ✅ Suporte a zoom com scroll do mouse (opcional)
+        container.addEventListener('wheel', (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -zoomStep : zoomStep;
+                updateZoom(currentZoom + delta);
+            }
+        });
+
+        // ✅ Suporte a atalhos de teclado (opcional)
+        const keydownHandler = (e) => {
+            // Verificar se o modal está aberto
+            const modal = document.getElementById('generatedContentModal');
+            if (!modal || !modal.classList.contains('show')) return;
+
+            if (e.ctrlKey) {
+                switch(e.key) {
+                    case '+':
+                    case '=':
+                        e.preventDefault();
+                        updateZoom(currentZoom + zoomStep);
+                        break;
+                    case '-':
+                        e.preventDefault();
+                        updateZoom(currentZoom - zoomStep);
+                        break;
+                    case '0':
+                        e.preventDefault();
+                        updateZoom(1);
+                        container.scrollTop = 0;
+                        container.scrollLeft = 0;
+                        break;
+                }
+            }
+        };
+
+        document.addEventListener('keydown', keydownHandler);
+
+        // ✅ Limpar event listener quando modal for removido
+        const modal = document.getElementById('generatedContentModal');
+        modal.addEventListener('hidden.bs.modal', () => {
+            document.removeEventListener('keydown', keydownHandler);
+        });
+
+        // Inicializar estado
+        updateZoom(1);
+
+        console.log('Controles de zoom configurados com sucesso');
+
+    }, 150); // Aguardar 100ms para o DOM ser atualizado
+}
+showGeneratedModal(categoryName, output, details = null) {
+    const modalElement = this.createGeneratedModal();
+
+    document.getElementById('modalCategoryBadge').textContent = categoryName;
+
+    const description = details?.visualizationType === 'fluxograma' 
+        ? 'Fluxograma baseado nas suas conversas'
+        : 'Mapa mental baseado nas suas conversas';
+    document.getElementById('modalDescription').textContent = description;
+    
+    
+    const now = new Date();
+    document.getElementById('modalTimestamp').textContent = 
+        `Gerado às ${now.toLocaleTimeString()}`;
+    
+    
+    const chatsCount = details?.chatsUsed || 0;
+    document.getElementById('modalStats').textContent = 
+        `Baseado em ${chatsCount} conversa${chatsCount !== 1 ? 's' : ''}`;
+    
+    // Mostrar o modal
+    const modal = new bootstrap.Modal(modalElement, {
+        backdrop: 'static', // Não fecha clicando fora
+        keyboard: true      // Permite fechar com ESC
+    });
+    
+    modal.show();
+    
+    // Renderizar o conteúdo Mermaid após o modal estar visível
+    modalElement.addEventListener('shown.bs.modal', () => {
+        this.renderMermaidInModal(output);
+    }, { once: true });
+}
+
+async renderMermaidInModal(content) {
+    const container = document.getElementById('modalMermaidContent');
+    
+    try {
+        if (!content) {
+            container.innerHTML = `
+                <div class="text-center text-muted">
+                    <i class="bi bi-exclamation-circle fs-1 mb-3"></i>
+                    <h5>Nenhum conteúdo gerado</h5>
+                    <p>Tente gerar novamente</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Criar elemento para o Mermaid
+        const mermaidDiv = document.createElement('div');
+        mermaidDiv.className = 'mermaid w-100 h-100 d-flex align-items-center justify-content-center';
+        mermaidDiv.style.minHeight = '400px';
+        mermaidDiv.style.background = '#fafafa';
+        mermaidDiv.style.borderRadius = '8px';
+        mermaidDiv.style.margin = '1rem';
+        mermaidDiv.style.padding = '1rem';
+        mermaidDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+        mermaidDiv.textContent = content;
+        
+        // Limpar loading e adicionar mermaid
+        container.innerHTML = '';
+        container.appendChild(mermaidDiv);
+
+        // Renderizar com Mermaid
+        if (window.mermaid) {
+            await window.mermaid.run({
+                nodes: [mermaidDiv]
+            });
+            console.log('Mermaid renderizado no modal com sucesso');
+        } else {
+            console.error('Mermaid não disponível');
+            container.innerHTML = `
+                <div class="text-center text-warning">
+                    <i class="bi bi-exclamation-triangle fs-1 mb-3"></i>
+                    <h5>Erro na renderização</h5>
+                    <p>Não foi possível renderizar o diagrama</p>
+                    <pre class="text-start mt-3 p-3 bg-light border rounded">${content}</pre>
+                </div>
+            `;
+        }
+
+    } catch (error) {
+        console.error('Erro ao renderizar Mermaid no modal:', error);
+        container.innerHTML = `
+            <div class="text-center text-danger">
+                <i class="bi bi-x-circle fs-1 mb-3"></i>
+                <h5>Erro na renderização</h5>
+                <p>Ocorreu um erro ao processar o diagrama</p>
+                <details class="mt-3">
+                    <summary class="btn btn-outline-secondary btn-sm">Ver detalhes técnicos</summary>
+                    <pre class="text-start mt-2 p-3 bg-light border rounded">${error.message}</pre>
+                </details>
+            </div>
+        `;
+    }
+}
+
+async downloadMermaidAsImage() {
+    try {
+        const mermaidContent = this.output;
+        if (!mermaidContent) {
+            this.showError('Nenhum conteúdo para baixar');
+            return;
+        }
+
+        if (!window.mermaid) {
+            this.showError('Mermaid não está disponível');
+            return;
+        }
+
+        // Gerar SVG com Mermaid
+        const { svg } = await window.mermaid.render('downloadSvg', mermaidContent);
+
+        // Criar imagem a partir do SVG
+        const img = new window.Image();
+        const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(svgBlob);
+
+        img.onload = () => {
+            // Criar canvas com resolução maior para alta qualidade
+            const scale = 3; // Aumente para mais qualidade
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            const ctx = canvas.getContext('2d');
+            ctx.setTransform(scale, 0, 0, scale, 0, 0);
+            ctx.drawImage(img, 0, 0);
+
+            // Baixar como PNG
+            canvas.toBlob(blob => {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `mapa-mental-${new Date().toISOString().slice(0, 10)}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                this.showSuccess('Imagem baixada com sucesso!');
+            }, 'image/png');
+        };
+        img.onerror = () => {
+            this.showError('Erro ao converter SVG para imagem');
+            URL.revokeObjectURL(url);
+        };
+        img.src = url;
+    } catch (error) {
+        console.error('Erro ao baixar imagem:', error);
+        this.showError('Erro ao baixar a imagem');
+    }
+}
+// Método para download (opcional)
+downloadMermaid() {
+    try {
+        const mermaidContent = this.output;
+        if (!mermaidContent) {
+            this.showError('Nenhum conteúdo para baixar');
+            return;
+        }
+        console.log('baixando conteúdo:', mermaidContent);
+        const blob = new Blob([mermaidContent], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `mapa-mental-${new Date().toISOString().slice(0, 10)}.mmd`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.downloadMermaidAsImage();
+        this.showSuccess('Arquivo baixado com sucesso!');
+    } catch (error) {
+        console.error('Erro ao baixar:', error);
+        this.showError('Erro ao baixar o arquivo');
+    }
+}
 }
 function getCsrfToken() {
     const cookies = document.cookie.split(';');
