@@ -1,0 +1,4 @@
+flowchart TD
+    A["Pedido referencia Cliente"] --> B{"Verificar existência de pedidos associados?"}
+    B -- "Existem referências impeditivas" --> C["Rejeitar a exclusão do cliente - Política restritiva"]
+    B -- "Não existem referências impeditivas" --> D["Excluir o cliente e eliminar os pedidos dependentes por cascata - Política de cascata"]

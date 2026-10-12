@@ -1,0 +1,9 @@
+Olá, {{ user.first_name|default:user.username }}!
+
+Recebemos uma solicitação para redefinir a senha da sua conta em {{ site_name }}.
+Escolha uma nova senha neste link:
+{{ protocol }}://{{ domain }}{% url 'password_reset_confirm' uidb64=uid token=token %}
+
+O link tem validade de {{ expiry_minutes }} minutos e deixa de funcionar após a troca da senha.
+Seu usuário é: {{ user.username }}.
+Se você não solicitou a alteração, ignore este email. Sua senha atual permanece igual.

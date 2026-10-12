@@ -1,0 +1,17 @@
+flowchart TD
+    A["M01: Cliente contém id_cliente como chave primária e nome_cliente como atributo descritivo."] --> B{"Condição para M02? Pedido contém id_pedido como chave primária e id_cliente como referência ao cliente."}
+    B --> C["M03: Produto contém id_produto como chave primária e descricao_produto como atributo descritivo."]
+    C --> D["M04: ItemPedido contém referências ao pedido e ao produto presentes no item."]
+    D --> E{"Condição para M05? A quantidade é um atributo do item de pedido."}
+    E --> F["M06: O preço registrado no item é preservado como informação do pedido no momento do registro."]
+    F --> G["M07: Um cliente pode possuir vários pedidos no relacionamento descrito."]
+    G --> H{"Condição para M08? Um pedido pode possuir vários itens de pedido."}
+    H --> I["M09: Um produto pode aparecer em diferentes itens de pedido, sem duplicar seu cadastro."]
+    I --> J{"Condição para M10? Verificar se o pedido e o produto existem."}
+    J -- Sim --> K{"Condição para M12? Quando alguma referência faltar ou a quantidade não for positiva."}
+    J -- Não --> L["Rejeitar item: Referências inexistentes."]
+    K -- Verdadeiro --> M["M10: Para registrar um item, verificar se o pedido e o produto existem."]
+    K -- Falso --> N{"Condição para M12? Quando alguma referência faltar ou a quantidade não for positiva."}
+    N -- Sim --> O["Rejeitar item: Referência faltando ou quantidade inválida."]
+    E -- Não --> P["M05: A quantidade é um atributo do item de pedido no exemplo sintético."]
+    M12["M12: Quando alguma referência faltar ou a quantidade não for positiva, rejeitar o item. Esta última mensagem deve chegar integralmente ao payload."]

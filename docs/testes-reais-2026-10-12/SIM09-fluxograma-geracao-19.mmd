@@ -1,0 +1,6 @@
+flowchart TD
+    A[Definição de Relação] --> B[INNER JOIN entre Cliente e Pedido]
+    B --> C[Verificação de associação por id_cliente]
+    C --> D[Preservar clientes sem correspondência]
+    D --> E[Verificar ausência de valor usando IS NULL]
+    E --> F[Resultado final com todos os clientes]

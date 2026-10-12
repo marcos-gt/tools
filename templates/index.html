@@ -108,7 +108,7 @@
             document.getElementById('chatsContainer').innerHTML = '<p>(Erro ao carregar chats)</p>';
           });
         }
-        carregarChats();
+        document.addEventListener('DOMContentLoaded', carregarChats);
     </script>
     <!-- Main Content -->
     <div class="container mt-4">
@@ -225,6 +225,11 @@
 
                         <div class="card-body" >
                             <form id="generatorForm">
+                                <label for="generatorMode" class="form-label">Modalidade</label>
+                                <select id="generatorMode" name="visualizationType" class="form-select mb-3" required>
+                                    <option value="mapa-mental">Mapa mental</option>
+                                    <option value="fluxograma">Fluxograma</option>
+                                </select>
                                 <div class="mb-3">
                                     <label for="generatorCategory" class="form-label">Categoria</label>
                                     <select class="form-select" id="generatorCategory" name="generatorCategory" required>
@@ -269,38 +274,18 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
-      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.12.0/dist/mermaid.esm.min.mjs';
       window.mermaid = mermaid;
-      mermaid.initialize({
-        startOnLoad: true,
-        theme: 'default',
-        flowchart: {
-          useMaxWidth: true,
-          htmlLabels: true
-        }
-      });
+      mermaid.initialize({startOnLoad: false, securityLevel: 'strict', htmlLabels: false, theme: 'default',
+        themeCSS: '.mindmap-node > circle ~ .label text { text-anchor: middle; }',
+        flowchart: {htmlLabels: false}, mindmap: {useMaxWidth: true}});
       window.renderMermaid = async function(elementId, content) {
         const element = document.getElementById(elementId);
         if (!element) return;
-
-
-        element.innerHTML = content;
-        element.classList.add('mermaid');
-        element.removeAttribute('data-processed');
-
-        try {
-          await mermaid.run({
-            nodes: [element]
-          });
-          console.log('Mermaid re-renderizado com sucesso');
-        } catch (error) {
-          console.error('Erro ao renderizar Mermaid:', error);
-          try {
-            await mermaid.init();
-          } catch (e) {
-            console.error('Fallback também falhou:', e);
-          }
-        }
+        element.textContent = content;
+        await mermaid.parse(content);
+        const {svg} = await mermaid.render('diagram-' + Date.now(), content);
+        element.innerHTML = svg;
       };
     </script>
 

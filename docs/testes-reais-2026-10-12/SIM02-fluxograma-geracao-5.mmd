@@ -1,0 +1,6 @@
+flowchart TD
+    A[Cliente] -->|id_cliente| B[Pedido]
+    B --> C[id_pedido]
+    D[Pedido] --> E[Verificar se o cliente existe]
+    E --> F[Sí] --> G[Inserir o pedido associado ao cliente existente]
+    E --> H[Não] --> I[Rejeitar a operação]

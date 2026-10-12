@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from web.auth import api_login
+from login.views import logout_view
 
 
 urlpatterns = [
@@ -26,9 +27,9 @@ urlpatterns = [
     path('output/', include('output.urls')),
     path('categoria/', include('categoria.urls')),
     path('sugestao/', include('sugestao.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', include('login.compat_urls')),
     path('api-login/', api_login, name='api_login'),
     path('login/',include('login.urls'), name='login'),
-    path('logout/', include('django.contrib.auth.urls')),
+    path('logout/', logout_view),
 
 ]

@@ -1,0 +1,10 @@
+mindmap
+  root("SIM12 - POLÍTICAS DE EXCLUSÃO REFERENCIAL")
+    "Política restritiva"
+      solicitar exclusão do cliente
+      verificar existência de pedidos
+      se existirem referências impeditivas, rejeitar a exclusão
+      se não existirem, excluir o cliente
+    "Política de cascata descrita"
+      excluir o cliente
+      eliminar pedidos dependentes

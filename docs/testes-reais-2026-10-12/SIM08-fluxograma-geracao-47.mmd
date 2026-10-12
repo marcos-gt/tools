@@ -1,0 +1,6 @@
+flowchart TD
+A[Texto fornecido]
+B["Iniciar transação"]
+C["Verificar saldo suficiente"]
+D["Se saldo for suficiente", E["Executar débito e crédito", F["Verificar se as atualizações foram concluídas", G["Confirmar com COMMIT", H["Concluir transação"], I["Parar"]], J["Parar"]]]
+K["Se não houver saldo suficiente ou uma atualização falhar", L["Executar ROLLBACK"]]

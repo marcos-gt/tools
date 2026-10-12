@@ -1,0 +1,12 @@
+flowchart TD
+    A[Cliente] --> B[Pedido]
+    C[Pedidos] --> D[Item Pedido]
+    E[Item Pedido] --> F[Referências]
+        F[Referências] --> G[Pedido]
+        F[Referências] --> H[Produto]
+    I[Quantidade] --> J[Item Pedido]
+    K[Preço] --> L[Pedido]
+    M[Cliente] --> N[Pedidos]
+    O[Pedido] --> P[Quantidade]
+    Q[Pedido] --> R[Item Pedido]
+    S[Productos] --> T[Produto]

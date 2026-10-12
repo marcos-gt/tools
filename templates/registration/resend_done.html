@@ -1,0 +1,2 @@
+{% extends 'registration/base.html' %}{% block title %}Confira seu email{% endblock %}
+{% block content %}<div class="status-icon" aria-hidden="true">✉</div><div class="auth-heading"><h1>Confira seu email.</h1><p>Se houver um cadastro aguardando confirmação nesse endereço, enviaremos um novo link.</p></div><div class="notice-box">Confira também o spam. Se a mensagem não chegar, tente novamente mais tarde.</div><a class="primary-button" href="{% url 'login' %}">Voltar para entrar <span aria-hidden="true">→</span></a>{% endblock %}

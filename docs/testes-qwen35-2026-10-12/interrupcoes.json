@@ -1,0 +1,7 @@
+[
+  {
+    "output_id": 63,
+    "motivo": "Rodada exploratoria interrompida apos timeout do primeiro caso, antes de aguardar a segunda chamada. Tempo decorrido ate encerramento, nao latencia concluida.",
+    "duracao_ate_encerramento_ms": 55654
+  }
+]

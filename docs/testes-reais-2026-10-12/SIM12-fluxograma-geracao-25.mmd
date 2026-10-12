@@ -1,0 +1,6 @@
+flowchart TD
+    A[Decisão] --> B[Policy Restrictiva]
+        B --> C[Verificar existência de pedidos associados]
+        C --> D[Excluir o cliente]
+    A --> E[Policy Cascata]
+        E --> F[Excluir o cliente e todos os pedidos dependentes]

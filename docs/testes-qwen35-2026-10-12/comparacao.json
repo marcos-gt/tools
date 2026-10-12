@@ -1,0 +1,419 @@
+{
+  "referencia_deepseek": {
+    "tentativas": 30,
+    "renderizados": 19,
+    "falhas_renderer": 9,
+    "rejeitados_backend": 2,
+    "timeouts": 0,
+    "falhas_verificacao": 0,
+    "tempos_medidos": 30,
+    "media_segundos": 9.946466666666666,
+    "mediana_segundos": 9.266,
+    "minimo_segundos": 5.578,
+    "maximo_segundos": 23.578,
+    "tempo_total_segundos": 298.394,
+    "mediana_renderizados_segundos": 8.922
+  },
+  "rodadas": {
+    "2026-10-12T20:26:13.862Z": {
+      "fase": "qwen35_mesmo_prompt",
+      "tentativas": 1,
+      "renderizados": 0,
+      "falhas_renderer": 0,
+      "rejeitados_backend": 1,
+      "timeouts": 1,
+      "falhas_verificacao": 0,
+      "tempos_medidos": 1,
+      "media_segundos": 120.016,
+      "mediana_segundos": 120.016,
+      "minimo_segundos": 120.016,
+      "maximo_segundos": 120.016,
+      "tempo_total_segundos": 120.016,
+      "mediana_renderizados_segundos": null,
+      "modalidades": {
+        "mapa-mental": {
+          "tentativas": 1,
+          "renderizados": 0,
+          "falhas_renderer": 0,
+          "rejeitados_backend": 1,
+          "timeouts": 1,
+          "falhas_verificacao": 0,
+          "tempos_medidos": 1,
+          "media_segundos": 120.016,
+          "mediana_segundos": 120.016,
+          "minimo_segundos": 120.016,
+          "maximo_segundos": 120.016,
+          "tempo_total_segundos": 120.016,
+          "mediana_renderizados_segundos": null
+        },
+        "fluxograma": {
+          "tentativas": 0,
+          "renderizados": 0,
+          "falhas_renderer": 0,
+          "rejeitados_backend": 0,
+          "timeouts": 0,
+          "falhas_verificacao": 0,
+          "tempos_medidos": 0,
+          "media_segundos": null,
+          "mediana_segundos": null,
+          "minimo_segundos": null,
+          "maximo_segundos": null,
+          "tempo_total_segundos": 0,
+          "mediana_renderizados_segundos": null
+        }
+      }
+    },
+    "2026-10-12T20:29:16.426Z": {
+      "fase": "qwen35_resposta_direta",
+      "tentativas": 30,
+      "renderizados": 26,
+      "falhas_renderer": 3,
+      "rejeitados_backend": 1,
+      "timeouts": 0,
+      "falhas_verificacao": 0,
+      "tempos_medidos": 30,
+      "media_segundos": 4.2281,
+      "mediana_segundos": 3.8514999999999997,
+      "minimo_segundos": 2.672,
+      "maximo_segundos": 10.375,
+      "tempo_total_segundos": 126.843,
+      "mediana_renderizados_segundos": 3.8514999999999997,
+      "modalidades": {
+        "mapa-mental": {
+          "tentativas": 15,
+          "renderizados": 12,
+          "falhas_renderer": 2,
+          "rejeitados_backend": 1,
+          "timeouts": 0,
+          "falhas_verificacao": 0,
+          "tempos_medidos": 15,
+          "media_segundos": 4.5386,
+          "mediana_segundos": 4.016,
+          "minimo_segundos": 2.75,
+          "maximo_segundos": 9.047,
+          "tempo_total_segundos": 68.07900000000001,
+          "mediana_renderizados_segundos": 4.0
+        },
+        "fluxograma": {
+          "tentativas": 15,
+          "renderizados": 14,
+          "falhas_renderer": 1,
+          "rejeitados_backend": 0,
+          "timeouts": 0,
+          "falhas_verificacao": 0,
+          "tempos_medidos": 15,
+          "media_segundos": 3.9176,
+          "mediana_segundos": 3.516,
+          "minimo_segundos": 2.672,
+          "maximo_segundos": 10.375,
+          "tempo_total_segundos": 58.764,
+          "mediana_renderizados_segundos": 3.6020000000000003
+        }
+      }
+    }
+  },
+  "comparacao_payloads": [
+    {
+      "run_id": "2026-10-12T20:26:13.862Z",
+      "caso": "SIM01",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": "padrao_do_modelo"
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM01",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM01",
+      "modalidade": "fluxograma",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM02",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM02",
+      "modalidade": "fluxograma",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM03",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM03",
+      "modalidade": "fluxograma",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM04",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM04",
+      "modalidade": "fluxograma",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM05",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM05",
+      "modalidade": "fluxograma",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM06",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM06",
+      "modalidade": "fluxograma",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM07",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM07",
+      "modalidade": "fluxograma",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM08",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM08",
+      "modalidade": "fluxograma",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM09",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM09",
+      "modalidade": "fluxograma",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM10",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM10",
+      "modalidade": "fluxograma",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM11",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM11",
+      "modalidade": "fluxograma",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM12",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM12",
+      "modalidade": "fluxograma",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM13",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM13",
+      "modalidade": "fluxograma",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM14",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM14",
+      "modalidade": "fluxograma",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM15",
+      "modalidade": "mapa-mental",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    },
+    {
+      "run_id": "2026-10-12T20:29:16.426Z",
+      "caso": "SIM15",
+      "modalidade": "fluxograma",
+      "mesmas_mensagens_e_prompt": true,
+      "mesmas_options": true,
+      "think": false
+    }
+  ],
+  "controles": [
+    {
+      "teste": "POST autenticado sem CSRF é rejeitado",
+      "http": 403,
+      "esperado": 403,
+      "passou": true
+    },
+    {
+      "teste": "modalidade inválida",
+      "http": 400,
+      "esperado": 400,
+      "passou": true
+    },
+    {
+      "teste": "categoria sem mensagens",
+      "http": 400,
+      "esperado": 400,
+      "passou": true
+    },
+    {
+      "teste": "categoria inexistente",
+      "http": 400,
+      "esperado": 400,
+      "passou": true
+    },
+    {
+      "teste": "categoria de outro usuário não gera",
+      "http": 400,
+      "esperado": 400,
+      "passou": true
+    },
+    {
+      "teste": "categoria de outro usuário não inativa",
+      "http": 404,
+      "esperado": 404,
+      "passou": true
+    },
+    {
+      "teste": "chats de outro usuário não inativam",
+      "http": 404,
+      "esperado": 404,
+      "passou": true
+    },
+    {
+      "teste": "listagem exclui outro proprietário",
+      "passou": true
+    },
+    {
+      "teste": "outro usuário não exporta output de tcc",
+      "http": 404,
+      "esperado": 404,
+      "passou": true
+    }
+  ]
+}

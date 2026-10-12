@@ -1,0 +1,23 @@
+mindmap
+  root((Base de Dados))
+    Alteração na Relação de Chaves
+      id_pedido é primary key
+      id_produto é partial foreign key
+      Criação de nova tabela: ItemPedido com (id_pedido, id_produto, quantidade)
+      Criação de nova tabela: Produto com (id_produto, nome_produto)
+      Remover a dependência de nome_produto na chave composta
+      Mantenir as relações necessárias entre as tabelas
+        id_pedido é primary key
+        id_produto é partial foreign key
+        Quantidade depende de id_pedido e id_produto
+        Nome_produto depende de id_produto
+    Procedure para Alteração na Tabela
+      Identificar a chave composta (id_pedido, id_produto)
+      Analisar as dependências dos atributos não-chave
+        nome_produto só depende de id_produto
+        quantidade depende de id_pedido e id_produto
+      Separar os atributos com dependência parcial
+        id_pedido como primary key
+        id_produto como partial foreign key para Produto
+        Quantidade como dependentemente na ItemPedido
+        Nome_produto como dependentemente no Produto

@@ -1,0 +1,12 @@
+{% extends 'registration/base.html' %}
+{% block title %}Criar conta{% endblock %}
+{% block signup_tab %}active{% endblock %}
+{% block content %}
+<div class="auth-heading"><span class="eyebrow">COMECE POR AQUI</span><h1>Um espaço só seu.</h1><p>Crie sua conta para organizar seus conteúdos.</p></div>
+<form class="auth-form" method="post" data-submit-label="Criando conta…">{% csrf_token %}
+  {% include 'registration/_fields.html' %}
+  <p class="form-note">Enviaremos um link para confirmar que o email é seu.</p>
+  <button class="primary-button" type="submit">Criar minha conta <span aria-hidden="true">↗</span></button>
+</form>
+<p class="secondary-action">Já se cadastrou? <a href="{% url 'resend_confirmation' %}">Reenviar confirmação</a></p>
+{% endblock %}

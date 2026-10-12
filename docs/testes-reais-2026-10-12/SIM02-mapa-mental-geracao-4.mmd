@@ -1,0 +1,31 @@
+mindmap
+  centralNode: "Chaves e Integração Referencial"
+    branches:
+      - id="chavePrimária"
+        title: "Chave Primária"
+        description: "Identifica cada registro, não aceita duplicação ou valor nulo."
+      - id="chaveEstrangeira"
+        title: "Chave Estrangeira"
+        description: "Mantém a referência ao cliente existente. Um cliente pode estar associado a vários pedidos."
+    subNodes:
+      - id="exemplo"
+        title: "Exemplo sintético"
+        content: "Cliente possui `id_cliente` como chave primária. Pedido possui `id_pedido` como chave primária e `id_cliente` como chave estrangeira que references `Cliente.id_cliente`."
+  centralNode: "Translação de Conhecimentos em Diagrama de Mind"
+    branches:
+      - id="lógicaTransacional"
+        title: "Lógica Transacional"
+        description: "Processos para Gerenciar Relações"
+        subNodes:
+          - id="obterCliente"
+            title: "Obter/Criar Cliente"
+            description: "Recupera o cliente existente ou cria um novo."
+          - id="verificarExiste"
+            title: "Verificar Existe"
+            description: "Verifica se o cliente encontrado é válido."
+          - id="inserirPedido"
+            title: "Inserir Pedido"
+            description: "Cria um novo pedido associado ao cliente."
+          - id="rejeitarOperação"
+            title: "Rejeitar Operação"
+            description: "Retira os dados se o cliente não for encontrado."

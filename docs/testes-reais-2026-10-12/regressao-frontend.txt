@@ -1,0 +1,5 @@
+PASS fluxo completo, renderer SVG, export JSON e botão restaurado: mapa-mental
+PASS fluxo completo, renderer SVG, export JSON e botão restaurado: fluxograma
+PASS sintaxe inválida: falha de renderização diferenciada e texto preservado
+PASS inferência vazia: HTTP 502, mensagem útil, sem modal, botão restaurado
+PASS texto HTML das mensagens não executado; sem exceções JavaScript não tratadas

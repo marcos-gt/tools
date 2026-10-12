@@ -1,0 +1,4 @@
+flowchart TD
+    A["Na relação sintetizada R(A, B, C), são fornecidas as dependências A -> B e B -> C."] --> B{"Uma dependência funcional expressa uma restrição entre conjuntos de atributos."}
+    B --> C["Para calcular o fecho de A neste exemplo: iniciar com A; usar A -> B para incluir B; usar B -> C para incluir C; encerrar quando nenhuma dependência acrescentar atributos."]
+    C --> D["O fecho obtido pelo procedimento informado é {A, B, C}."]

@@ -1,0 +1,4 @@
+flowchart TD
+    A["Uma editora publica vários livros; cada livro pertence a uma editora."] --> B{"Editora e Livro formam uma relação 1:N."}
+    C["Um autor pode escrever vários livros, e um livro pode ter vários autores."] --> D{"Autor e Livro formam uma relação N:N, representada pela tabela associativa Autoria com id_autor e id_livro."}
+    E["Para registrar autoria, verificar a existência do autor e do livro. Se ambos existirem, inserir a associação; caso contrário, rejeitar."] --> F{"O exemplo não informa participação mínima obrigatória em todas as relações."}

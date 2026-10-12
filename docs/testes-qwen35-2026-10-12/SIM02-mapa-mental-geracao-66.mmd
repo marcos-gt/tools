@@ -1,0 +1,21 @@
+mindmap
+  SIM02 - CHAVES E INTEGRIDADE REFERENCIAL
+    Exemplo sintético Cliente e Pedido
+      id_cliente como chave primária no Cliente
+      id_pedido como chave primária no Pedido
+      id_cliente como chave estrangeira no Pedido
+        referencia a Cliente.id_cliente
+    Regras da Chave Primária
+      Identifica cada registro único
+      Não aceita duplicidade de valores
+      Não aceita valor nulo
+    Função da Chave Estrangeira
+      Mantém referência ao cliente existente
+      Permite associação um-para-muitos (Cliente para Pedido)
+      Um cliente pode ter vários pedidos
+    Lógica de Cadastro de Pedido
+      Receber id_cliente na solicitação
+      Verificar existência do Cliente no banco
+        Se existir: inserir o pedido
+        Se não existir: rejeitar a operação
+      Não criar automaticamente um novo cliente

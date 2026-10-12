@@ -1,0 +1,18 @@
+mindmap
+  root((SIM03 - RELAÇÃO E CARDINALIDADE))
+    Editor
+      Editor é responsável por publicar vários livros.
+      Cada editor pertence a uma categoria única.
+    Autor
+      Autor é capaz de escrever vários livros.
+      Cada autor pode pertencer a várias categorias.
+    Livro
+      Livro é um produto da editora, relacionado a autores e editores.
+      Cada livro pode ter vários autores associados.
+Subramos:
+  Editor:Livro
+    Relação entre editor e livro é 1:N.
+  Autor:Livro
+    Relação entre autor e livro é N:N, representada pela tabela associativa Autoria.
+  Autoria
+    Táblase que relaciona autores e livros, permitindo a autoria de livros com múltiplos autores.

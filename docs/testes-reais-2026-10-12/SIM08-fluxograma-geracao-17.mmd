@@ -1,0 +1,8 @@
+flowchart TD
+    A[Iniciar transação] --> B[Verificar saldo suficiente]
+    B --> C[Se saldo insuficiente, executar ROLLBACK]
+    C --> D[Executar débito e crédito na mesma transação]
+    D --> E[Verificar se as atualizações foram concluídas]
+    E --> F[Confirmar com COMMIT se ambas concluíram]
+    F --> G[Se sim, terminar]
+    F --> H[Se não, executar ROLLBACK]

@@ -1,0 +1,18 @@
+mindmap
+  SIM03 - RELACIONAMENTOS E CARDINALIDADE
+    Editoras e Livros
+      Uma editora publica vários livros
+      Cada livro pertence a uma editora
+      Relação entre Editora e Livro é 1:N
+    Autores e Livros
+      Um autor pode escrever vários livros
+      Um livro pode ter vários autores
+      Relação entre Autor e Livro é N:N
+      Tabela associativa chamada Autoria
+      Chaves na tabela Autoria: id_autor, id_livro
+    Regras de Negócio para Autoria
+      Verificar existência do autor antes de registrar
+      Verificar existência do livro antes de registrar
+      Inserir associação apenas se ambos existirem
+      Rejeitar registro caso contrário
+      Participação mínima não é obrigatória em todas as relações

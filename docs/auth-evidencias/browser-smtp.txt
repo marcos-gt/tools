@@ -1,0 +1,4 @@
+PASS login desktop/mobile, sem rolagem horizontal, mostrar/ocultar senha
+PASS cadastro, SMTP multipart real local, bloqueio antes de confirmação, ativação e boas-vindas
+PASS recuperação via SMTP local, nova senha, senha antiga rejeitada, token usado rejeitado, login
+PASS nenhuma exceção JavaScript não tratada; nenhum email externo enviado

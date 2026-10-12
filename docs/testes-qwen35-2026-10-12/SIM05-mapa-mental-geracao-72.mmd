@@ -1,0 +1,16 @@
+mindmap
+  root((SIM05 - SEGUNDA FORMA NORMAL))
+    ItemPedido usa chave composta (id_pedido, id_produto)
+      quantidade depende da chave completa
+      nome_produto depende apenas de id_produto
+    Dependência parcial identificada
+      Atributo: nome_produto
+      Chave dependente: parte da chave composta (apenas id_produto)
+    Proposta de normalização
+      Tabela Produto(id_produto, nome_produto)
+      Tabela ItemPedido(id_pedido, id_produto, quantidade)
+    Procedimento descrito
+      Identificar a chave composta
+      Analisar as dependências dos atributos não chave
+      Separar atributos com dependência parcial
+      Manter referências entre as tabelas

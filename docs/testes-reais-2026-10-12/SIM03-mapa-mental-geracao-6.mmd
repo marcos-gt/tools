@@ -1,0 +1,25 @@
+mindmap
+  centralConcept: Relações de Ordem
+    branch: Editor e Livro, Relação 1:N
+      editor: Editor
+      livro: Livro
+      id_editor | id_livro
+      editor1 -> livro1
+      editor2 -> livro3
+      editor3 -> livro5
+      
+    branch: Autor e Livro, Relação N:M
+      autor: Autor
+      livro: Livro
+      id_autor | id_livro
+      autorA -> livroX
+      autorB -> livroY
+      autorC -> livroZ
+      
+    branch: Editor e Autor, Relação N:M
+      editor: Editor
+      autor: Autor
+      id_editor | id_autor
+      editor1 -> autorD
+      editor2 -> autorE
+      editor3 -> autorF

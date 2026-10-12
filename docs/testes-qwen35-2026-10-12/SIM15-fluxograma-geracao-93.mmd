@@ -1,0 +1,6 @@
+flowchart TD
+    Start["Receber uma linha"] --> CheckCode{"Verificar se codigo_item está preenchido?"}
+    CheckCode -- Não --> RejectLine["Rejeitar a linha e indicar o campo inválido"]
+    CheckCode -- Sim --> CheckQty{"Verificar se quantidade é um número positivo?"}
+    CheckQty -- Não --> RejectLine
+    CheckQty -- Sim --> RegisterItem["Registrar o item"]

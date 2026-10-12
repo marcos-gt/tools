@@ -11,53 +11,67 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
+from urllib.parse import urlparse
+from email.utils import formataddr
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-vhsc79^mla6srp9y)o^h$$*osugvy*3vgf3)dg2=x9i(*2w72-'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['*']
-LOGIN_REDIRECT_URL = '/login/'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '')
+if not SECRET_KEY:
+    raise ImproperlyConfigured('Configure DJANGO_SECRET_KEY no ambiente ou .env.')
+DEBUG = os.getenv('DJANGO_DEBUG', 'false').lower() in ('true', '1', 'yes')
+ALLOWED_HOSTS = [v.strip() for v in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if v.strip()]
+LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
+CSRF_FAILURE_VIEW = 'web.api.csrf_failure'
+OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', 'http://127.0.0.1:11434').rstrip('/')
+OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'qwen3.5:9b-q4_K_M')
+OLLAMA_CONNECT_TIMEOUT = float(os.getenv('OLLAMA_CONNECT_TIMEOUT', '10'))
+OLLAMA_READ_TIMEOUT = float(os.getenv('OLLAMA_READ_TIMEOUT', '120'))
+OLLAMA_TOKEN = os.getenv('OLLAMA_TOKEN', '')
+OLLAMA_MAX_INPUT_CHARS = int(os.getenv('OLLAMA_MAX_INPUT_CHARS', '0'))
+OLLAMA_NUM_CTX = int(os.getenv('OLLAMA_NUM_CTX', '8192'))
+OLLAMA_TEMPERATURE = float(os.getenv('OLLAMA_TEMPERATURE', '0'))
+# Vazio preserva o comportamento do modelo; false solicita resposta direta.
+_ollama_think = os.getenv('OLLAMA_THINK', '').strip().lower()
+if _ollama_think not in ('', 'true', 'false'):
+    raise ImproperlyConfigured('OLLAMA_THINK deve ser true, false ou vazio.')
+OLLAMA_THINK = None if not _ollama_think else _ollama_think == 'true'
 
+# Links dos emails usam esta origem, nunca o Host recebido do navegador.
+SITE_NAME = os.getenv('SITE_NAME', 'Sistema de Chat')
+PUBLIC_SITE_URL = os.getenv('PUBLIC_SITE_URL', 'http://127.0.0.1:8000').rstrip('/')
+_site_url = urlparse(PUBLIC_SITE_URL)
+if (_site_url.scheme not in ('http', 'https') or not _site_url.netloc or _site_url.username
+        or _site_url.password or _site_url.path or _site_url.query or _site_url.fragment):
+    raise ImproperlyConfigured('PUBLIC_SITE_URL deve ser uma origem HTTP/HTTPS, sem caminho ou credenciais.')
+EMAIL_PROVIDER = os.getenv('EMAIL_PROVIDER', 'smtp').lower()
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', '') or ('smtp.gmail.com' if EMAIL_PROVIDER == 'gmail' else '')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'true').lower() in ('true', '1', 'yes')
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'false').lower() in ('true', '1', 'yes')
+EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '15'))
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', '') or formataddr((SITE_NAME, EMAIL_HOST_USER))
+PASSWORD_RESET_TIMEOUT = int(os.getenv('PASSWORD_RESET_TIMEOUT', '3600'))
+AUTH_EMAIL_COOLDOWN = int(os.getenv('AUTH_EMAIL_COOLDOWN', '60'))
+AUTH_EMAIL_MAX_PER_IP = int(os.getenv('AUTH_EMAIL_MAX_PER_IP', '10'))
+if EMAIL_USE_TLS and EMAIL_USE_SSL:
+    raise ImproperlyConfigured('Use EMAIL_USE_TLS ou EMAIL_USE_SSL, não ambos.')
+if PASSWORD_RESET_TIMEOUT < 60 or EMAIL_TIMEOUT < 1 or AUTH_EMAIL_COOLDOWN < 1 or AUTH_EMAIL_MAX_PER_IP < 1:
+    raise ImproperlyConfigured('Os limites e timeouts de email devem ser positivos.')
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-    ],
-}
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
-
-CORS_ALLOW_CREDENTIALS = True
-
-CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-]
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "authorization",
-    "content-type",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
-]
 # Application definition
 
 INSTALLED_APPS = [
@@ -67,27 +81,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_extensions',
     'web',
     'chat',
     'output',
     'categoria',
     'sugestao',
-    "corsheaders",
-    "rest_framework",
-    "rest_framework.authtoken",
+    'login',
 
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
 ]
 
@@ -115,17 +124,15 @@ WSGI_APPLICATION = 'web.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'projeto',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
-}
-
+DATABASES = {'default': {
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': os.getenv('DB_NAME', 'tcc'),
+    'USER': os.getenv('DB_USER', 'tcc'),
+    'PASSWORD': os.getenv('DB_PASSWORD', ''),
+    'HOST': os.getenv('DB_HOST', '127.0.0.1'),
+    'PORT': os.getenv('DB_PORT', '5432'),
+    'OPTIONS': {'connect_timeout': 5},
+}}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -165,6 +172,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 # Default primary key field type
