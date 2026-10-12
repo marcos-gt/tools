@@ -1,3 +1,4 @@
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.shortcuts import render
 from django.contrib.auth import logout as django_logout
 from django.contrib.auth.decorators import login_required
@@ -6,9 +7,9 @@ from django.shortcuts import redirect
 
 
 # Create your views here.
+@ensure_csrf_cookie
 def login(request):
-    return render(request, 'registration\login.html')
-
+    return render(request, 'registration/login.html')
 
 @login_required
 def logout_view(request):

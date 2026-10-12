@@ -1,135 +1,57 @@
-from selectors import SelectSelector
-from django.shortcuts import get_object_or_404
-
-from django.shortcuts import render
-from django.http import JsonResponse
-import ollama
+﻿import logging
+import time
 from django.contrib.auth.decorators import login_required
-
-from categoria.views import categoria
-from chat.models import Chat
+from django.http import JsonResponse
+from django.shortcuts import render
 from categoria.models import Categoria
-import pprint
+from chat.models import Chat
+from output.models import Output
+from web.api import error, owned_category
+from .inference import build_payload, infer, InferenceError
 
-
-
+logger = logging.getLogger(__name__)
 
 @login_required
 def index(request):
-    if request.method == "POST":
-        categoria_name = request.POST.get('generatorCategory')
-
-        if not categoria_name:
-            return JsonResponse({
-                'error': 'Categoria é obrigatória'
-            }, status=400)
-
+    if request.method == 'POST':
+        category = owned_category(request.user, request.POST.get('generatorCategory'))
+        mode = request.POST.get('visualizationType')
+        if not category:
+            return error('Categoria inválida ou indisponível.')
+        chats = Chat.objects.filter(usuario=request.user, categoria=category, ativo=True).order_by('timestamp', 'id')
+        snapshots = [{'id': c.id, 'texto': c.message, 'timestamp': c.timestamp.isoformat()}
+                     for c in chats if c.message.strip()]
+        if not snapshots:
+            return error('A categoria não contém mensagens ativas com conteúdo válido.')
         try:
-            chats_exato = Chat.objects.filter(usuario=request.user, categoria__nome=categoria_name)
-            chats_iexact = Chat.objects.filter(usuario=request.user, categoria__nome__iexact=categoria_name)
-            chats_contains = Chat.objects.filter(usuario=request.user, categoria__nome__icontains=categoria_name)
-
-            if chats_iexact.exists():
-                chats = chats_iexact
-            elif chats_contains.exists():
-                chats = chats_contains
-            else:
-                chats = chats_exato
-
-            if chats.exists():
-                chats_texto = "\n".join([
-                    f"- {chat.message}"
-                    for chat in chats[:10]  # Limitar a 10 chats para não sobrecarregar
-                ])
-
-                categoria = chats.first().categoria
-                categoria_nome = categoria.nome if categoria else "Categoria desconhecida"
-            else:
-                chats_texto = "Nenhuma conversa encontrada para esta categoria."
-                categoria_nome = categoria_name
-
-            print(f'categoria_name: {categoria_name}')
-            print(f'chats: {chats}')
-
-            response = ollama.chat(
-                model="deepseek-r1:7b",
-                messages=[
-                    {"role": "user", "content": f'''
-                    Crie um mapa mental usando APENAS a sintaxe Mermaid.
-                    Responda SÓ com o código, sem explicações, se for menor que 10 cards use a criatividade para contribuir, caso contrario não acrescente.
-
-                    Use o formato:
-                    flowchart TD
-                        A["Tópico Central"] --> B["Subtópico 1"]
-                        A --> C["Subtópico 2"]
-                        B --> D["Detalhe 1"]
-                        C --> E["Detalhe 2"]
-
-                    Regras importantes:
-                    - Use [ ] para tópicos normais
-                    - Use {{ }} para decisões
-                    - Use ( ) para processos
-                    - Use | | para comentários nas setas 
-                    - Mantenha suas respostas em português                
-                    - Utilize quebras de linha para organizar o código
-                    
-                    Categoria: {categoria_nome}
-                    Conversas: {chats_texto}
-
-                    Crie um mapa mental organizado e criativo sobre este tema.
-                    '''},
-                ],
-            )
-
-            print(f'Response recebida: {response["message"]["content"][:200]}...')
-
-            mermaid_content = response["message"]["content"].split("</think>", 1)[-1].strip().replace("```mermaid ", "").replace("```", "").strip()
-
-            return JsonResponse({
-                'output': mermaid_content,
-                'categoria': categoria_nome,
-                'total_chats': chats.count()
-            })
-
-        except Exception as e:
-            print(f"Erro completo: {str(e)}")
-            print(f"Tipo do erro: {type(e)}")
-            import traceback
-            traceback.print_exc()
-
-            return JsonResponse({
-                'error': f'Erro interno: {str(e)}'
-            }, status=500)
-
-    # Quando for GET, cai aqui:
-    categorias = Categoria.objects.filter(ativa=True).order_by('nome')
-    chats = Chat.objects.filter(usuario=request.user).order_by('-timestamp')
-    qtd_chats = chats.count()
-
-    chats_lista = [
-        {
-            "id": chat.id,
-            "message": chat.message,
-            "timestamp": chat.timestamp.isoformat(),
-            "category": chat.categoria.nome.upper() if chat.categoria else "",
-        }
-        for chat in chats
-    ]
-
-    categorias_lista = [
-        {
-            "id": cat.id,
-            "nome": cat.nome.upper(),
-            "descricao": cat.descricao,
-            "data_criacao": cat.data_criacao.isoformat(),
-            "ativa": cat.ativa,
-        }
-        for cat in categorias
-    ]
-
-    return render(request, 'index.html', {
-        'chats': chats_lista,
-        'categorias': categorias_lista,
-        'qtd': qtd_chats
-    })
-
+            payload = build_payload(category.nome, snapshots, mode)
+        except InferenceError as exc:
+            return error(exc.message, exc.code, exc.status)
+        record = Output.objects.create(usuario=request.user, conteudo='', modalidade=mode,
+            categoria_snapshot={'id': category.id, 'nome': category.nome}, mensagens_snapshot=snapshots,
+            payload=payload, modelo=payload['model'], status='pending')
+        record.categoria.add(category)
+        started = time.monotonic()
+        try:
+            original, normalized = infer(payload, mode)
+            record.resposta_original = original
+            record.conteudo = normalized
+            record.status = 'success'
+        except InferenceError as exc:
+            record.status = 'failure'
+            record.codigo_erro = exc.code
+            record.resposta_original = exc.original
+            logger.warning('Inferência falhou: registro=%s código=%s', record.pk, exc.code)
+            return error(exc.message, exc.code, exc.status, output_id=record.pk)
+        finally:
+            record.duracao_ms = round((time.monotonic() - started) * 1000)
+            record.save()
+        return JsonResponse({'success': True, 'output': record.conteudo, 'output_id': record.pk,
+            'categoria': category.nome, 'modalidade': mode, 'total_chats': len(snapshots),
+            'syntax_validation': 'pending_frontend'})
+    if request.method != 'GET':
+        return error('Método não permitido.', 'method_not_allowed', 405)
+    categories = Categoria.objects.filter(usuario=request.user, ativa=True).order_by('nome', 'id')
+    chats = Chat.objects.filter(usuario=request.user, ativo=True, categoria__ativa=True,
+                                categoria__usuario=request.user).order_by('-timestamp', '-id')
+    return render(request, 'index.html', {'categorias': categories, 'chats': chats, 'qtd': chats.count()})

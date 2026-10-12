@@ -1,3 +1,6 @@
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
+}
 class ChatApp {
     constructor() {
         this.chats = [];
@@ -33,11 +36,12 @@ class ChatApp {
              category: (chat.category || chat.categoria || "").trim().toUpperCase()
         }));
 
-        const categoriesResp = await fetch('/categoria/lista');
+        const categoriesResp = await fetch('/categoria/lista/');
         if (!categoriesResp.ok)
             throw new Error('Erro ao carregar categorias');
         const categoriesData = await categoriesResp.json();
 
+         this.categoryRecords = categoriesData.categorias;
          this.categories = categoriesData.categorias.map(cat => cat.nome.trim().toUpperCase());
 
 
@@ -48,7 +52,7 @@ class ChatApp {
          this.updateGeneratorSelect();
     } catch (error) {
         this.showError('Erro ao carregar dados');
-        console.error('Erro:', error);
+
     } finally {
         this.setLoading(false);
     }
@@ -58,25 +62,22 @@ class ChatApp {
     async handleGerarMap() {
     try {
         if (!this.output) {
-            console.error('Nenhum output encontrado');
+
             return;
         }
-
-        console.log('Gerando mapa com conteúdo:', this.output);
 
         if (window.renderMermaid) {
             await window.renderMermaid('cardmap', this.output);
         } else {
-            console.error('Função renderMermaid não disponível');
 
             const mapElement = document.getElementById('cardmap');
             if (mapElement) {
-                mapElement.innerHTML = this.output;
+                mapElement.textContent = this.output;
             }
         }
 
     } catch (error) {
-        console.error('Erro ao gerar mapa:', error);
+
         this.showError('Erro ao renderizar o mapa mental');
     }
     }
@@ -102,13 +103,14 @@ class ChatApp {
         this.setButtonLoading(submitBtn, true);
         
         try {
-            console.log('Adicionando chat:', { message, category, visualizationType });
+
             // Simular API call
             const response = await fetch('/chat/novo/', {
             method: 'POST',
             body: formData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCsrfToken(),
             },
             credentials: 'same-origin',
         });
@@ -138,7 +140,7 @@ class ChatApp {
             
         } catch (error) {
             this.showError('Erro ao adicionar chat');
-            console.error('Erro:', error);
+
         } finally {
             this.setButtonLoading(submitBtn, false);
         }
@@ -146,8 +148,7 @@ class ChatApp {
     
     async handleAddCategory(e) {
     e.preventDefault();
-    console.log('ADICIONANDO CATEGORIA DEBUG inicio');
-    
+
     const form = e.target;
     const formData = new FormData(form);
     
@@ -158,9 +159,7 @@ class ChatApp {
         const input = document.getElementById('newCategoryInput');
         category = input ? input.value : null;
     }
-    
-    console.log('Categoria encontrada:', category);
-    
+
     if (!category || !category.trim()) {
         this.showError('Nome da categoria é obrigatório');
         return;
@@ -175,9 +174,7 @@ class ChatApp {
     
     const submitBtn = form.querySelector('#addCategoryBtn');
     this.setButtonLoading(submitBtn, true);
-    
-    console.log('ADICIONANDO CATEGORIA DEBUG:', category);
-    
+
     try {
         // ✅ Usar a URL correta para adicionar categoria
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -190,6 +187,7 @@ class ChatApp {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCsrfToken(),
                 'X-CSRFToken': csrfToken,
             },
             credentials: 'same-origin',
@@ -201,10 +199,9 @@ class ChatApp {
         }
 
         const result = await response.json();
-        console.log('Categoria adicionada:', result);
 
         // Adicionar à lista local
-        this.categories.push(category);
+        await this.loadInitialData();
         this.renderCategories();
         this.renderCategoryTabs();
         this.updateCategoriesSelect();
@@ -217,7 +214,7 @@ class ChatApp {
         
     } catch (error) {
         this.showError('Erro ao adicionar categoria: ' + error.message);
-        console.error('Erro:', error);
+
     } finally {
         this.setButtonLoading(submitBtn, false);
     }
@@ -238,7 +235,7 @@ class ChatApp {
 
     const deleteBtn = form.querySelector('#deleteBtn');
     this.setButtonLoading(deleteBtn, true);
-    console.log('DELETE DEBUG:');
+
     try {
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
@@ -251,11 +248,12 @@ class ChatApp {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCsrfToken(),
                 'X-CSRFToken': csrfToken,
             },
             credentials: 'same-origin',
         });
-        console.log('DELETE passou aqui');
+
         if (!response.ok) {
             const result = await response.json();
             throw new Error(result.error || 'Erro ao inativar categoria');
@@ -273,7 +271,7 @@ class ChatApp {
 
     } catch (error) {
         this.showError('Erro ao inativar categoria');
-        console.error('Erro:', error);
+
     } finally {
         this.setButtonLoading(deleteBtn, false);
     }
@@ -315,6 +313,7 @@ class ChatApp {
             body: formData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCsrfToken(),
                 'X-CSRFToken': csrfToken,
             },
             credentials: 'same-origin',
@@ -326,6 +325,8 @@ class ChatApp {
         }
 
         const result = await response.json();
+        if (!result.output || !result.output.trim()) throw new Error('Serviço retornou saída vazia.');
+        this.outputId = result.output_id;
         this.output = result.output;
 
         // Renderizar no card principal também
@@ -338,14 +339,14 @@ class ChatApp {
         ).length;
 
         this.showGeneratedModal(categoryName, this.output, {
-            chatsUsed: chatsCount,
+            chatsUsed: result.total_chats,
             visualizationType: visualizationType,
             generatedAt: new Date().toISOString()
         });
 
     } catch (error) {
-        this.showError('Erro ao gerar conteúdo');
-        console.error('Erro:', error);
+        this.showError(error.message || 'Falha de inferência.');
+
     } finally {
         this.setButtonLoading(submitBtn, false);
     }
@@ -380,6 +381,7 @@ class ChatApp {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCsrfToken(),
                 'X-CSRFToken': csrfToken,
             },
             credentials: 'same-origin',
@@ -402,7 +404,7 @@ class ChatApp {
 
     } catch (error) {
         this.showError('Erro ao inativar chats');
-        console.error('Erro:', error);
+
     } finally {
         this.setButtonLoading(deleteBtn, false);
     }
@@ -422,12 +424,13 @@ class ChatApp {
         
         try {
             // Simular API call
-            const response = await fetch('/categoria/deletar/', {
+            const response = await fetch('/categoria/inativar/', {
                 method: 'POST',
                 body: JSON.stringify({ category: category }),
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCsrfToken(),
                 },
                 credentials: 'same-origin',
             });
@@ -448,7 +451,7 @@ class ChatApp {
             
         } catch (error) {
             this.showError('Erro ao deletar categoria');
-            console.error('Erro:', error);
+
         } finally {
             this.setButtonLoading(button, false);
         }
@@ -470,12 +473,9 @@ class ChatApp {
     // Pega a categoria do data attribute
     const category = e.target.getAttribute('data-category');
 
-    console.log('🎯 TAB CHANGE DEBUG:');
-    console.log('Tab clicada:', e.target.textContent);
-    console.log('Categoria:', category);
+
 
     this.activeTab = category;
-    console.log('Nova aba ativa:', this.activeTab);
 
     // Renderizar imediatamente
     this.renderChats();
@@ -505,7 +505,7 @@ class ChatApp {
     }
     
     createChatCard(chat) {
-        const category = chat.category || 'Sem Categoria';
+        const category = escapeHtml(chat.category) || 'Sem Categoria';
     const visualizationType = chat.visualizationType || '';
     const visualizationIcon = visualizationType === 'mapa-mental'
         ? 'bi-diagram-3'
@@ -533,7 +533,7 @@ class ChatApp {
                 </div>
             </div>
             <div class="card-body pt-0">
-                <p class="card-text">${message}</p>
+                <p class="card-text">${escapeHtml(message)}</p>
             </div>
             <div class="card-footer bg-transparent border-0 pt-0">
                 <small class="text-muted">ID: ${id}</small>
@@ -554,9 +554,9 @@ class ChatApp {
 
         container.innerHTML = this.categories.map(category => `
             <span class="badge bg-secondary me-2 mb-2 d-inline-flex align-items-center">
-                ${category.charAt(0).toUpperCase() + category.slice(1)}
+                ${escapeHtml(category.charAt(0).toUpperCase() + category.slice(1))}
                 <button type="button" class="btn-close btn-close-white ms-2 delete-category" 
-                        data-category="${category}"></button>
+                        data-category="${escapeHtml(category)}"></button>
             </span>
         `).join('');
     }
@@ -565,7 +565,7 @@ class ChatApp {
         const tabsContainer = document.getElementById('categoryTabs');
 
         if (!tabsContainer) {
-            console.error('Container de tabs não encontrado');
+
             return;
         }
 
@@ -589,8 +589,8 @@ class ChatApp {
             tabsHTML += `
                 <li class="nav-item" role="presentation">
                     <button class="nav-link ${this.activeTab === category.toUpperCase() ? 'active' : ''}" 
-                            data-category="${category.toUpperCase()}" type="button" role="tab">
-                        ${categoryDisplay} (${count})
+                            data-category="${escapeHtml(category.toUpperCase())}" type="button" role="tab">
+                        ${escapeHtml(categoryDisplay)} (${count})
                     </button>
                 </li>
             `;
@@ -607,7 +607,7 @@ class ChatApp {
         
         this.categories.forEach(category => {
             const option = document.createElement('option');
-            option.value = category;
+            option.value = this.categoryRecords.find(c => c.nome.trim().toUpperCase() === category).id;
             option.textContent = category.charAt(0).toUpperCase() + category.slice(1);
             select.appendChild(option);
         });
@@ -619,7 +619,7 @@ class ChatApp {
 
         this.categories.forEach(category => {
             const option = document.createElement('option');
-            option.value = category;
+            option.value = this.categoryRecords.find(c => c.nome.trim().toUpperCase() === category).id;
             option.textContent = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
             select.appendChild(option);
         });
@@ -697,7 +697,7 @@ class ChatApp {
                 <strong class="me-auto">Sucesso</strong>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
             </div>
-            <div class="toast-body">${message}</div>
+            <div class="toast-body">${escapeHtml(message)}</div>
         `;
         
         toastContainer.appendChild(successToast);
@@ -859,8 +859,6 @@ setupZoomControls() {
         const mermaidContent = document.getElementById('modalMermaidContent');
         const container = document.getElementById('mermaidContainer');
 
-        console.log('Todos os elementos encontrados, configurando zoom...');
-
         // Função para atualizar o zoom
         const updateZoom = (newZoom) => {
             currentZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
@@ -946,8 +944,6 @@ setupZoomControls() {
         // Inicializar estado
         updateZoom(1);
 
-        console.log('Controles de zoom configurados com sucesso');
-
     }, 150); // Aguardar 100ms para o DOM ser atualizado
 }
 showGeneratedModal(categoryName, output, details = null) {
@@ -986,65 +982,40 @@ showGeneratedModal(categoryName, output, details = null) {
 
 async renderMermaidInModal(content) {
     const container = document.getElementById('modalMermaidContent');
-    
+    let status = 'success';
     try {
-        if (!content) {
-            container.innerHTML = `
-                <div class="text-center text-muted">
-                    <i class="bi bi-exclamation-circle fs-1 mb-3"></i>
-                    <h5>Nenhum conteúdo gerado</h5>
-                    <p>Tente gerar novamente</p>
-                </div>
-            `;
-            return;
-        }
-
-        // Criar elemento para o Mermaid
-        const mermaidDiv = document.createElement('div');
-        mermaidDiv.className = 'mermaid w-100 h-100 d-flex align-items-center justify-content-center';
-        mermaidDiv.style.minHeight = '400px';
-        mermaidDiv.style.background = '#fafafa';
-        mermaidDiv.style.borderRadius = '8px';
-        mermaidDiv.style.margin = '1rem';
-        mermaidDiv.style.padding = '1rem';
-        mermaidDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-        mermaidDiv.textContent = content;
-        
-        // Limpar loading e adicionar mermaid
-        container.innerHTML = '';
-        container.appendChild(mermaidDiv);
-
-        // Renderizar com Mermaid
-        if (window.mermaid) {
-            await window.mermaid.run({
-                nodes: [mermaidDiv]
-            });
-            console.log('Mermaid renderizado no modal com sucesso');
-        } else {
-            console.error('Mermaid não disponível');
-            container.innerHTML = `
-                <div class="text-center text-warning">
-                    <i class="bi bi-exclamation-triangle fs-1 mb-3"></i>
-                    <h5>Erro na renderização</h5>
-                    <p>Não foi possível renderizar o diagrama</p>
-                    <pre class="text-start mt-3 p-3 bg-light border rounded">${content}</pre>
-                </div>
-            `;
-        }
-
+        if (!window.renderMermaid) throw new Error('Renderer indisponível.');
+        await window.renderMermaid('modalMermaidContent', content);
     } catch (error) {
-        console.error('Erro ao renderizar Mermaid no modal:', error);
-        container.innerHTML = `
-            <div class="text-center text-danger">
-                <i class="bi bi-x-circle fs-1 mb-3"></i>
-                <h5>Erro na renderização</h5>
-                <p>Ocorreu um erro ao processar o diagrama</p>
-                <details class="mt-3">
-                    <summary class="btn btn-outline-secondary btn-sm">Ver detalhes técnicos</summary>
-                    <pre class="text-start mt-2 p-3 bg-light border rounded">${error.message}</pre>
-                </details>
-            </div>
-        `;
+        status = 'failure';
+        container.replaceChildren();
+        const warning = document.createElement('p');
+        warning.textContent = 'Falha de renderização Mermaid. Código preservado abaixo; confira a sintaxe.';
+        const pre = document.createElement('pre');
+        pre.textContent = content;
+        container.append(warning, pre);
+    }
+    if (this.outputId) {
+        const links = document.createElement('div');
+        for (const format of ['json', 'mmd']) {
+            const link = document.createElement('a');
+            link.href = `/output/${this.outputId}/export/${format}/`;
+            link.textContent = `Exportar .${format} `;
+            link.className = 'btn btn-outline-primary m-1';
+            links.appendChild(link);
+        }
+        const image = document.createElement('button');
+        image.textContent = 'Exportar PNG';
+        image.className = 'btn btn-outline-primary m-1';
+        image.disabled = status !== 'success';
+        image.onclick = () => this.downloadMermaidAsImage();
+        links.appendChild(image);
+        container.appendChild(links);
+        try {
+            await fetch(`/output/${this.outputId}/render-status/`, {method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken()},
+                body: JSON.stringify({status})});
+        } catch (_) { this.showError('Não foi possível registrar o status de renderização.'); }
     }
 }
 
@@ -1097,7 +1068,7 @@ async downloadMermaidAsImage() {
         };
         img.src = url;
     } catch (error) {
-        console.error('Erro ao baixar imagem:', error);
+
         this.showError('Erro ao baixar a imagem');
     }
 }
@@ -1109,7 +1080,7 @@ downloadMermaid() {
             this.showError('Nenhum conteúdo para baixar');
             return;
         }
-        console.log('baixando conteúdo:', mermaidContent);
+
         const blob = new Blob([mermaidContent], { type: 'text/plain' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -1122,7 +1093,7 @@ downloadMermaid() {
         this.downloadMermaidAsImage();
         this.showSuccess('Arquivo baixado com sucesso!');
     } catch (error) {
-        console.error('Erro ao baixar:', error);
+
         this.showError('Erro ao baixar o arquivo');
     }
 }
@@ -1145,6 +1116,7 @@ async function logout() {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCsrfToken(),
                     'X-CSRFToken': getCsrfToken(),
                     'Content-Type': 'application/json',
                 },
@@ -1159,7 +1131,7 @@ async function logout() {
                 throw new Error('Erro no logout');
             }
         } catch (error) {
-            console.error('Erro no logout:', error);
+
             alert('Erro ao fazer logout. Tente novamente.');
         }
     }
