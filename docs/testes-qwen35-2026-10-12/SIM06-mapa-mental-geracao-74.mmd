@@ -1,0 +1,13 @@
+mindmap
+  root((SIM06 - TERCEIRA FORMA NORMAL))
+    Exemplo de Tabela Funcionario
+      id_funcionario determina id_departamento
+      id_departamento determina nome_departamento
+    Proposta de Normalização
+      Separar Departamento(id_departamento, nome_departamento)
+      Manter tabela Funcionario(id_funcionario, id_departamento)
+    Ações para Identificar Dependência Transitiva
+      Identificar dependências entre atributos não chave
+      Separar os dados do departamento
+      Atualizar a referência dos funcionários
+      Verificar existência de cada referência

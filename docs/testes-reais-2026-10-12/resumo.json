@@ -1,0 +1,108 @@
+{
+  "data_local": "2026-10-12",
+  "postgresql": "PostgreSQL 17.0 on x86_64-windows, compiled by msvc-19.41.34120, 64-bit",
+  "usuario": "tcc",
+  "categorias_preenchidas_novas": 15,
+  "mensagens_ativas_dos_casos": 54,
+  "mensagem_inativa_controle_id": 60,
+  "controles": [
+    {
+      "teste": "POST autenticado sem CSRF é rejeitado",
+      "http": 403,
+      "esperado": 403,
+      "passou": true
+    },
+    {
+      "teste": "modalidade inválida",
+      "http": 400,
+      "esperado": 400,
+      "passou": true
+    },
+    {
+      "teste": "categoria sem mensagens",
+      "http": 400,
+      "esperado": 400,
+      "passou": true
+    },
+    {
+      "teste": "categoria inexistente",
+      "http": 400,
+      "esperado": 400,
+      "passou": true
+    },
+    {
+      "teste": "categoria de outro usuário não gera",
+      "http": 400,
+      "esperado": 400,
+      "passou": true
+    },
+    {
+      "teste": "categoria de outro usuário não inativa",
+      "http": 404,
+      "esperado": 404,
+      "passou": true
+    },
+    {
+      "teste": "chats de outro usuário não inativam",
+      "http": 404,
+      "esperado": 404,
+      "passou": true
+    },
+    {
+      "teste": "listagem exclui outro proprietário",
+      "passou": true
+    },
+    {
+      "teste": "outro usuário não exporta output de tcc",
+      "http": 404,
+      "esperado": 404,
+      "passou": true
+    }
+  ],
+  "fases": {
+    "baseline": {
+      "tentativas": 30,
+      "http_200": 22,
+      "renderizados": 14,
+      "falhas_renderer": 8,
+      "rejeitados_backend": 8,
+      "falhas_verificacao": 0
+    },
+    "sintaxe_explicita": {
+      "tentativas": 30,
+      "http_200": 28,
+      "renderizados": 19,
+      "falhas_renderer": 9,
+      "rejeitados_backend": 2,
+      "falhas_verificacao": 0
+    }
+  },
+  "payloads_integrais": 60,
+  "inativo_excluido": 60,
+  "botoes_restaurados": 60,
+  "snapshots_verificados": 60,
+  "quantidade_outputs_novos": 60,
+  "ollama": {
+    "version": "0.32.3"
+  },
+  "modelo": [
+    {
+      "name": "deepseek-r1:7b",
+      "digest": "755ced02ce7befdb13b7ca74e1e4d08cddba4986afdb63a480f2c93d3140383f",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen2",
+        "families": [
+          "qwen2"
+        ],
+        "parameter_size": "7.6B",
+        "quantization_level": "Q4_K_M",
+        "context_length": 131072,
+        "embedding_length": 3584
+      }
+    }
+  ],
+  "nenhum_output_ou_dado_anterior_removido": true,
+  "banco_tcc_sem_permissao_createdb": true
+}

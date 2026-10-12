@@ -1,0 +1,4 @@
+{% extends 'registration/email/base.html' %}{% block content %}
+<h1 style="font-size:25px;margin:0 0 18px">Seu espaço começa aqui.</h1><p style="line-height:1.7">Olá, {{ user.first_name|default:user.username }}! Confirme seu email para ativar sua conta.</p>
+<p style="margin:26px 0"><a href="{{ action_url }}" style="display:inline-block;background:#245ce2;color:white;text-decoration:none;padding:14px 22px;border-radius:8px;font-weight:bold">Confirmar meu email →</a></p>
+<p style="font-size:13px;line-height:1.7;color:#64738a">Link válido por {{ expiry_minutes }} minutos. Seu usuário é <strong>{{ user.username }}</strong>. Se não iniciou o cadastro, ignore este email.</p><p style="font-size:12px;word-break:break-all"><a href="{{ action_url }}">{{ action_url }}</a></p>{% endblock %}

@@ -187,7 +187,6 @@ class ChatApp {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': getCsrfToken(),
                 'X-CSRFToken': csrfToken,
             },
             credentials: 'same-origin',
@@ -248,7 +247,6 @@ class ChatApp {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': getCsrfToken(),
                 'X-CSRFToken': csrfToken,
             },
             credentials: 'same-origin',
@@ -260,7 +258,6 @@ class ChatApp {
         }
 
         const result = await response.json();
-        console.log(result)
         this.showSuccess(`Categoria "${category}" foi inativada com sucesso!`);
 
         // Recarregar os dados para refletir as mudanças
@@ -313,7 +310,6 @@ class ChatApp {
             body: formData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': getCsrfToken(),
                 'X-CSRFToken': csrfToken,
             },
             credentials: 'same-origin',
@@ -321,7 +317,7 @@ class ChatApp {
 
         if (!response.ok) {
             const result = await response.json();
-            throw new Error(result.error || 'Erro ao gerar conteúdo');
+            throw new Error((result.error || 'Falha de inferência.') + (result.output_id ? ` Registro: ${result.output_id}; JSON em /output/${result.output_id}/export/json/` : ''));
         }
 
         const result = await response.json();
@@ -381,7 +377,6 @@ class ChatApp {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': getCsrfToken(),
                 'X-CSRFToken': csrfToken,
             },
             credentials: 'same-origin',
@@ -507,12 +502,11 @@ class ChatApp {
     createChatCard(chat) {
         const category = escapeHtml(chat.category) || 'Sem Categoria';
     const visualizationType = chat.visualizationType || '';
-    const visualizationIcon = visualizationType === 'mapa-mental'
-        ? 'bi-diagram-3'
-        : 'bi-diagram-2';
-    const visualizationText = visualizationType === 'mapa-mental'
-        ? 'Mapa Mental'
-        : 'Fluxograma';
+    const representation = {
+        'mapa-mental': ['bi-diagram-3', 'Mapa Mental'],
+        'fluxograma': ['bi-diagram-2', 'Fluxograma'],
+    };
+    const [visualizationIcon, visualizationText] = representation[visualizationType] || ['bi-chat-left-text', 'Texto'];
     const timestamp = chat.timestamp ? this.formatTimestamp(chat.timestamp) : '';
     const message = chat.message || '';
     const id = chat.id || '';
@@ -741,7 +735,7 @@ createGeneratedModal() {
                                 <div class="col-md-8">
                                     <h6 class="mb-1">
                                         <span class="badge bg-primary me-2" id="modalCategoryBadge">Categoria</span>
-                                        <span class="text-success">✓ Gerado com sucesso</span>
+                                        <span id="modalRenderStatus">Resposta recebida</span>
                                     </h6>
                                     <p class="mb-0 text-muted" id="modalDescription">
                                         Mapa mental baseado nas suas conversas
@@ -771,7 +765,7 @@ createGeneratedModal() {
                         </div>
                         
                         <!-- Área do conteúdo gerado -->
-                        <div class="h-100 d-flex align-items-center justify-content-center" style="min-height: 500px;">
+                        <div id="mermaidContainer" class="h-100 d-flex align-items-center justify-content-center" style="min-height: 500px; overflow: auto;">
                             <div id="modalMermaidContent" class="w-100 h-100 d-flex align-items-center justify-content-center">
                                 <!-- Loading inicial -->
                                 <div class="text-center">
@@ -858,6 +852,10 @@ setupZoomControls() {
         const zoomLevel = document.getElementById('zoomLevel');
         const mermaidContent = document.getElementById('modalMermaidContent');
         const container = document.getElementById('mermaidContainer');
+
+        if (!zoomInBtn || !zoomOutBtn || !resetZoomBtn || !zoomLevel || !mermaidContent || !container) {
+            return;
+        }
 
         // Função para atualizar o zoom
         const updateZoom = (newZoom) => {
@@ -950,6 +948,8 @@ showGeneratedModal(categoryName, output, details = null) {
     const modalElement = this.createGeneratedModal();
 
     document.getElementById('modalCategoryBadge').textContent = categoryName;
+    document.getElementById('generatedContentModalLabel').textContent =
+        details?.visualizationType === 'fluxograma' ? 'Fluxograma gerado' : 'Mapa mental gerado';
 
     const description = details?.visualizationType === 'fluxograma' 
         ? 'Fluxograma baseado nas suas conversas'
@@ -982,6 +982,7 @@ showGeneratedModal(categoryName, output, details = null) {
 
 async renderMermaidInModal(content) {
     const container = document.getElementById('modalMermaidContent');
+    container.classList.add('flex-column');
     let status = 'success';
     try {
         if (!window.renderMermaid) throw new Error('Renderer indisponível.');
@@ -995,6 +996,9 @@ async renderMermaidInModal(content) {
         pre.textContent = content;
         container.append(warning, pre);
     }
+    const label = document.getElementById('modalRenderStatus');
+    label.textContent = status === 'success' ? 'Diagrama renderizado' : 'Falha de renderização';
+    label.className = status === 'success' ? 'text-success' : 'text-danger';
     if (this.outputId) {
         const links = document.createElement('div');
         for (const format of ['json', 'mmd']) {
@@ -1020,56 +1024,47 @@ async renderMermaidInModal(content) {
 }
 
 async downloadMermaidAsImage() {
+    let svgUrl;
+    let pngUrl;
     try {
-        const mermaidContent = this.output;
-        if (!mermaidContent) {
-            this.showError('Nenhum conteúdo para baixar');
-            return;
-        }
-
-        if (!window.mermaid) {
-            this.showError('Mermaid não está disponível');
-            return;
-        }
-
-        // Gerar SVG com Mermaid
-        const { svg } = await window.mermaid.render('downloadSvg', mermaidContent);
-
-        // Criar imagem a partir do SVG
+        if (!this.output || !window.mermaid) throw new Error('Diagrama indisponível.');
+        const {svg} = await window.mermaid.render('download-' + Date.now(), this.output);
+        const documentSvg = new DOMParser().parseFromString(svg, 'image/svg+xml');
+        const element = documentSvg.documentElement;
+        const viewBox = element.getAttribute('viewBox')?.split(/[ ,]+/).map(Number);
+        const width = Math.ceil(viewBox?.[2] || 1000);
+        const height = Math.ceil(viewBox?.[3] || 700);
+        element.setAttribute('width', width);
+        element.setAttribute('height', height);
+        element.style.maxWidth = 'none';
+        svgUrl = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(element)], {type: 'image/svg+xml;charset=utf-8'}));
         const img = new window.Image();
-        const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-        const url = URL.createObjectURL(svgBlob);
-
-        img.onload = () => {
-            // Criar canvas com resolução maior para alta qualidade
-            const scale = 3; // Aumente para mais qualidade
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width * scale;
-            canvas.height = img.height * scale;
-            const ctx = canvas.getContext('2d');
-            ctx.setTransform(scale, 0, 0, scale, 0, 0);
-            ctx.drawImage(img, 0, 0);
-
-            // Baixar como PNG
-            canvas.toBlob(blob => {
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = `mapa-mental-${new Date().toISOString().slice(0, 10)}.png`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                this.showSuccess('Imagem baixada com sucesso!');
-            }, 'image/png');
-        };
-        img.onerror = () => {
-            this.showError('Erro ao converter SVG para imagem');
-            URL.revokeObjectURL(url);
-        };
-        img.src = url;
+        await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = () => reject(new Error('Não foi possível converter SVG em imagem.'));
+            img.src = svgUrl;
+        });
+        const canvas = document.createElement('canvas');
+        const scale = Math.min(3, 8192 / Math.max(width, height));
+        canvas.width = Math.ceil(width * scale);
+        canvas.height = Math.ceil(height * scale);
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        if (!blob) throw new Error('O navegador não produziu a imagem PNG.');
+        pngUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = pngUrl;
+        link.download = `diagrama-${this.outputId || Date.now()}.png`;
+        link.click();
+        this.showSuccess('Imagem baixada com sucesso!');
     } catch (error) {
-
-        this.showError('Erro ao baixar a imagem');
+        this.showError('Falha na exportação de imagem: ' + error.message);
+    } finally {
+        if (svgUrl) URL.revokeObjectURL(svgUrl);
+        if (pngUrl) setTimeout(() => URL.revokeObjectURL(pngUrl), 1000);
     }
 }
 // Método para download (opcional)
@@ -1116,7 +1111,6 @@ async function logout() {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': getCsrfToken(),
                     'X-CSRFToken': getCsrfToken(),
                     'Content-Type': 'application/json',
                 },

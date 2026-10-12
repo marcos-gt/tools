@@ -1,0 +1,4 @@
+flowchart TD
+    A["Cliente e Pedido relacionam-se por id_cliente."] --> B[INNER JOIN retorna correspondências entre as duas relações; LEFT JOIN preserva as linhas da relação à esquerda, podendo apresentar valores nulos nos atributos da direita sem correspondência.]
+    C{"Objetivo do exemplo: listar todos os clientes, incluindo aqueles sem pedido."} --> D[A entrada indica LEFT JOIN entre Cliente e Pedido para esse objetivo.]
+    E[Definir a relação Cliente como lado esquerdo; aplicar a condição de associação por id_cliente; preservar clientes sem correspondência; apresentar resultado.] --> F[Para verificar ausência de valor, o exemplo usa IS NULL, não igualdade com NULL.]

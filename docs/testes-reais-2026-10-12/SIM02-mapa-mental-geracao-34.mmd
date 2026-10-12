@@ -1,0 +1,16 @@
+mindmap
+  root((SIM02 - CHAVES E INTEGRIDADE REFERENCIAL))
+    Conceito
+      Detalhe
+Subcategorias:
+  Chaves Primárias
+    Identificam cada registro de forma única
+    Não aceitam duplicação ou valor nulo
+  Chaves Estrangeiras
+    Mantêm a referência ao cliente existente
+    Um cliente pode estar associado a vários pedidos
+Processos:
+  Para cadastrar um pedido, receber id_cliente
+  Verificar se o cliente existe
+  Se existir, inserir o pedido
+  Se não existir, rejeitar a operação

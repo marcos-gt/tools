@@ -8,6 +8,10 @@ def error(message, code='invalid_input', status=400, **extra):
     return JsonResponse({'success': False, 'error': message, 'code': code, **extra}, status=status)
 
 
+def csrf_failure(request, reason=''):
+    return error('Sessão ou token CSRF inválido. Atualize a página e tente novamente.', 'csrf_failed', 403)
+
+
 def protected(view):
     @wraps(view)
     def wrapped(request, *args, **kwargs):

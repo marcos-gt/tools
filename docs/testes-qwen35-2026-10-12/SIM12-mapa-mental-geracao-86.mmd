@@ -1,0 +1,16 @@
+mindmap
+  root((SIM12 - POLÍTICAS DE EXCLUSÃO REFERENCIAL))
+    Pedido referencia Cliente
+      Exemplo compara duas políticas
+        Política restritiva
+          Impede excluir cliente referenciado
+            Solicitar exclusão do cliente
+              Verificar existência de pedidos
+                Se existirem referências impeditivas -> Rejeitar a exclusão
+                Se não existirem -> Excluir o cliente
+        Política de cascata
+          Elimina os pedidos associados por cascata
+          A exclusão do cliente também elimina os pedidos dependentes
+    Escolha da política
+      Depende da regra informada
+      Entrada não autoriza escolher automaticamente uma das duas

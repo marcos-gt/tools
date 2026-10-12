@@ -1,0 +1,8 @@
+Olá, {{ user.first_name|default:user.username }}!
+
+Seu email foi confirmado e sua conta está ativa em {{ site_name }}.
+Entre com seu usuário {{ user.username }} e a senha escolhida no cadastro:
+{{ action_url }}
+
+Você pode começar criando categorias e adicionando suas anotações.
+Sua senha nunca é enviada por email.

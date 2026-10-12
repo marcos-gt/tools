@@ -1,0 +1,313 @@
+[
+  {
+    "output_id": 32,
+    "caso": "SIM01",
+    "modalidade": "mapa-mental",
+    "arquivo_png": "SIM01-mapa-mental-geracao-32-alinhamento-corrigido.png",
+    "geometria": [
+      {
+        "texto": "Socrates",
+        "x": -30.172773361206055,
+        "width": 60.86651611328125,
+        "radius": 40.44921875,
+        "centralizado": true,
+        "cabe": true
+      }
+    ],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 33,
+    "caso": "SIM01",
+    "modalidade": "fluxograma",
+    "arquivo_png": "SIM01-fluxograma-geracao-33-alinhamento-corrigido.png",
+    "geometria": [],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 35,
+    "caso": "SIM02",
+    "modalidade": "fluxograma",
+    "arquivo_png": "SIM02-fluxograma-geracao-35-alinhamento-corrigido.png",
+    "geometria": [],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 37,
+    "caso": "SIM03",
+    "modalidade": "fluxograma",
+    "arquivo_png": "SIM03-fluxograma-geracao-37-alinhamento-corrigido.png",
+    "geometria": [],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 38,
+    "caso": "SIM04",
+    "modalidade": "mapa-mental",
+    "arquivo_png": "SIM04-mapa-mental-geracao-38-alinhamento-corrigido.png",
+    "geometria": [
+      {
+        "texto": "SIM04 - PRIMEIRA FORMANORMAL",
+        "x": -87.8225326538086,
+        "width": 176.2030792236328,
+        "radius": 97.69921875,
+        "centralizado": true,
+        "cabe": true
+      }
+    ],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 40,
+    "caso": "SIM05",
+    "modalidade": "mapa-mental",
+    "arquivo_png": "SIM05-mapa-mental-geracao-40-alinhamento-corrigido.png",
+    "geometria": [
+      {
+        "texto": "Base de Dados",
+        "x": -51.06626510620117,
+        "width": 102.13253021240234,
+        "radius": 61.33984375,
+        "centralizado": true,
+        "cabe": true
+      }
+    ],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 41,
+    "caso": "SIM05",
+    "modalidade": "fluxograma",
+    "arquivo_png": "SIM05-fluxograma-geracao-41-alinhamento-corrigido.png",
+    "geometria": [],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 43,
+    "caso": "SIM06",
+    "modalidade": "fluxograma",
+    "arquivo_png": "SIM06-fluxograma-geracao-43-alinhamento-corrigido.png",
+    "geometria": [],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 45,
+    "caso": "SIM07",
+    "modalidade": "fluxograma",
+    "arquivo_png": "SIM07-fluxograma-geracao-45-alinhamento-corrigido.png",
+    "geometria": [],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 46,
+    "caso": "SIM08",
+    "modalidade": "mapa-mental",
+    "arquivo_png": "SIM08-mapa-mental-geracao-46-alinhamento-corrigido.png",
+    "geometria": [
+      {
+        "texto": "SIM08 - TRANSAÇÕESCOMMIT E ROLLBACK",
+        "x": -74.25116729736328,
+        "width": 149.29501342773438,
+        "radius": 84.54296875,
+        "centralizado": true,
+        "cabe": true
+      }
+    ],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 48,
+    "caso": "SIM09",
+    "modalidade": "mapa-mental",
+    "arquivo_png": "SIM09-mapa-mental-geracao-48-alinhamento-corrigido.png",
+    "geometria": [
+      {
+        "texto": "SIM09 - CONSULTAS JOINS EVALORES NULOS",
+        "x": -97.33773803710938,
+        "width": 195.10214233398438,
+        "radius": 108.09765625,
+        "centralizado": true,
+        "cabe": true
+      }
+    ],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 49,
+    "caso": "SIM09",
+    "modalidade": "fluxograma",
+    "arquivo_png": "SIM09-fluxograma-geracao-49-alinhamento-corrigido.png",
+    "geometria": [],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 50,
+    "caso": "SIM10",
+    "modalidade": "mapa-mental",
+    "arquivo_png": "SIM10-mapa-mental-geracao-50-alinhamento-corrigido.png",
+    "geometria": [
+      {
+        "texto": "SIM10 - FILTROS COMACENTOS E COMPARAÇÕES",
+        "x": -94.32513427734375,
+        "width": 187.58660888671875,
+        "radius": 103.91796875,
+        "centralizado": true,
+        "cabe": true
+      }
+    ],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 53,
+    "caso": "SIM11",
+    "modalidade": "fluxograma",
+    "arquivo_png": "SIM11-fluxograma-geracao-53-alinhamento-corrigido.png",
+    "geometria": [],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 54,
+    "caso": "SIM12",
+    "modalidade": "mapa-mental",
+    "arquivo_png": "SIM12-mapa-mental-geracao-54-alinhamento-corrigido.png",
+    "geometria": [],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 56,
+    "caso": "SIM13",
+    "modalidade": "mapa-mental",
+    "arquivo_png": "SIM13-mapa-mental-geracao-56-alinhamento-corrigido.png",
+    "geometria": [
+      {
+        "texto": "Relações entre entidades",
+        "x": -90.14318084716797,
+        "width": 181.8263702392578,
+        "radius": 100.484375,
+        "centralizado": true,
+        "cabe": true
+      },
+      {
+        "texto": "Cliente contém id_clientecomo chave primária enome_cliente comoatributo descritivo.",
+        "x": -93.04495239257812,
+        "width": 187.39691162109375,
+        "radius": 103.2578125,
+        "centralizado": true,
+        "cabe": true
+      },
+      {
+        "texto": "Pedido contém id_pedidocomo chave primária eid_cliente como referênciaao cliente.",
+        "x": -96.80941772460938,
+        "width": 195.2565460205078,
+        "radius": 107.1953125,
+        "centralizado": true,
+        "cabe": true
+      },
+      {
+        "texto": "Produto contém id_produtocomo chave primária edescricao_produto comoatributo descritivo.",
+        "x": -98.40930938720703,
+        "width": 198.26451110839844,
+        "radius": 108.6953125,
+        "centralizado": true,
+        "cabe": true
+      },
+      {
+        "texto": "ItemPedido contémreferências ao pedido e aoproduto presentes no item.",
+        "x": -98.03286743164062,
+        "width": 196.20567321777344,
+        "radius": 108.125,
+        "centralizado": true,
+        "cabe": true
+      },
+      {
+        "texto": "A quantidade é um atributodo item de pedido noexemplo sintético.",
+        "x": -101.06011962890625,
+        "width": 201.57281494140625,
+        "radius": 109.40234375,
+        "centralizado": true,
+        "cabe": true
+      },
+      {
+        "texto": "O preço registrado no itemé preservado comoinformação do pedido nomomento do registro.",
+        "x": -96.51139831542969,
+        "width": 193.7940673828125,
+        "radius": 106.5859375,
+        "centralizado": true,
+        "cabe": true
+      },
+      {
+        "texto": "Um cliente pode possuirvários pedidos norelacionamento descrito.",
+        "x": -90.12749481201172,
+        "width": 180.3878631591797,
+        "radius": 100.7109375,
+        "centralizado": true,
+        "cabe": true
+      },
+      {
+        "texto": "Um pedido pode possuirvários itens de pedido norelacionamento descrito.",
+        "x": -91.86856079101562,
+        "width": 183.16709899902344,
+        "radius": 100.7109375,
+        "centralizado": true,
+        "cabe": true
+      },
+      {
+        "texto": "Um produto pode aparecerem diferentes itens depedido, sem duplicar seucadastro.",
+        "x": -96.48002624511719,
+        "width": 194.7655792236328,
+        "radius": 106.9453125,
+        "centralizado": true,
+        "cabe": true
+      },
+      {
+        "texto": "Para registrar um item,verificar se o pedido e oproduto existem.",
+        "x": -89.04521179199219,
+        "width": 177.540771484375,
+        "radius": 97.80859375,
+        "centralizado": true,
+        "cabe": true
+      },
+      {
+        "texto": "Quando as referênciasexistirem e a quantidadefor positiva, registrar oitem de pedido.",
+        "x": -91.53916931152344,
+        "width": 182.36346435546875,
+        "radius": 99.734375,
+        "centralizado": true,
+        "cabe": true
+      },
+      {
+        "texto": "Quando alguma referênciafaltar ou a quantidade nãofor positiva, rejeitar oitem.",
+        "x": -97.65641784667969,
+        "width": 194.76333618164062,
+        "radius": 105.9375,
+        "centralizado": true,
+        "cabe": true
+      }
+    ],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 58,
+    "caso": "SIM14",
+    "modalidade": "mapa-mental",
+    "arquivo_png": "SIM14-mapa-mental-geracao-58-alinhamento-corrigido.png",
+    "geometria": [],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 59,
+    "caso": "SIM14",
+    "modalidade": "fluxograma",
+    "arquivo_png": "SIM14-fluxograma-geracao-59-alinhamento-corrigido.png",
+    "geometria": [],
+    "codigo_mermaid_alterado": false
+  },
+  {
+    "output_id": 61,
+    "caso": "SIM15",
+    "modalidade": "fluxograma",
+    "arquivo_png": "SIM15-fluxograma-geracao-61-alinhamento-corrigido.png",
+    "geometria": [],
+    "codigo_mermaid_alterado": false
+  }
+]

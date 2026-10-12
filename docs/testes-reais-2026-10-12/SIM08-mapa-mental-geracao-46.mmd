@@ -1,0 +1,6 @@
+mindmap
+  root((SIM08 - TRANSAÇÕES COMMIT E ROLLBACK))
+    Transações de commit e rollback
+      Detalhe 1: Exemplo syntético: uma transferência deve atualizar débito e crédito na mesma transação. A operação considera contas e valores fictícios.
+      Detalhe 2: Iniciar a transação; verificar saldo suficiente; se houver saldo, executar débito e crédito; verificar se as duas atualizações foram concluídas; confirmar com COMMIT se ambas concluíram.
+      Detalhe 3: Se o saldo for insuficiente ou uma atualização falhar, executar ROLLBACK. A entrada não prevê envio de notificações, análise de crédito ou integrações externas.

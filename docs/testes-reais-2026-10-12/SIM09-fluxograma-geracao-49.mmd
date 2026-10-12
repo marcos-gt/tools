@@ -1,0 +1,6 @@
+flowchart TD
+    A["Texto fornecido"]
+        --> B{"Definir a relação Cliente como lado esquerdo"}
+            --> C{"Aplicar a condição de associação por id_cliente"}
+                --> D{"Preservar clientes sem correspondência"}
+                    --> E{"Utilizar IS NULL para identificar ausência de valor"}

@@ -1,0 +1,13 @@
+mindmap
+  SIM04 - PRIMEIRA FORMA NORMAL
+    Exemplo sintético
+      Tabela de contatos armazena vários telefones em uma única célula separados por vírgulas
+      Essa organização mistura valores de um atributo multivalorado
+    Proposta do exemplo
+      Manter Contato(id_contato, nome) e Telefone(id_contato, numero), com um número por registro
+      A atomicidade depende do domínio considerado pelo modelo
+    Transformação descrita
+      Identificar células com lista de telefones
+      Separar cada número
+      Criar registros na tabela Telefone
+      Manter a referência ao contato original

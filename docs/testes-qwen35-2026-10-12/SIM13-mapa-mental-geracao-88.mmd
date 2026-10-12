@@ -1,0 +1,26 @@
+mindmap
+  root((SIM13 - DOZE MENSAGENS SEM TRUNCAMENTO))
+    Mensagem 01 (M01)
+      Cliente contém id_cliente como chave primária e nome_cliente como atributo descritivo.
+    Mensagem 02 (M02)
+      Pedido contém id_pedido como chave primária e id_cliente como referência ao cliente.
+    Mensagem 03 (M03)
+      Produto contém id_produto como chave primária e descricao_produto como atributo descritivo.
+    Mensagem 04 (M04)
+      ItemPedido contém referências ao pedido e ao produto presentes no item.
+    Mensagem 05 (M05)
+      A quantidade é um atributo do item de pedido no exemplo sintético.
+    Mensagem 06 (M06)
+      O preço registrado no item é preservado como informação do pedido no momento do registro.
+    Mensagem 07 (M07)
+      Um cliente pode possuir vários pedidos no relacionamento descrito.
+    Mensagem 08 (M08)
+      Um pedido pode possuir vários itens de pedido no relacionamento descrito.
+    Mensagem 09 (M09)
+      Um produto pode aparecer em diferentes itens de pedido, sem duplicar seu cadastro.
+    Mensagem 10 (M10)
+      Para registrar um item, verificar se o pedido e o produto existem.
+    Mensagem 11 (M11)
+      Quando as referências existirem e a quantidade for positiva, registrar o item de pedido.
+    Mensagem 12 (M12)
+      Quando alguma referência faltar ou a quantidade não for positiva, rejeitar o item. Esta última mensagem deve chegar integralmente ao payload.

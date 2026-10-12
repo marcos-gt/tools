@@ -1,0 +1,7 @@
+flowchart TD
+    A["Iniciar a transação"] --> B{"Verificar saldo suficiente?"}
+    B -- Sim --> C["Executar débito e crédito"]
+    C --> D{"Verificar se as duas atualizações foram concluídas?"}
+    D -- Ambas concluíram --> E["Confirmar com COMMIT"]
+    D -- Falha em uma atualização --> F["Executar ROLLBACK"]
+    B -- Não --> F

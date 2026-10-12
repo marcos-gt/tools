@@ -1,0 +1,5 @@
+flowchart TD
+    A["ItemPedido usa chave composta id_pedido, id_produto."] --> B{"nome_produto depende apenas parte da chave?"]
+    B -- "Sim" --> C["Separar Produto id_produto, nome_produto de ItemPedido id_pedido, id_produto, quantidade."]
+    B -- "Não" --> D[]
+    A -.-> E["Procedimento: identificar a chave composta; analisar dependências dos atributos não chave; separar atributos com dependência parcial; manter referências entre as tabelas."]

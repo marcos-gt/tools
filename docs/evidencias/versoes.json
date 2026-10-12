@@ -1,0 +1,18 @@
+{
+  "python": "3.12.5",
+  "packages": {
+    "Django": "5.2.18",
+    "requests": "2.34.2",
+    "psycopg": "3.3.6",
+    "python-dotenv": "1.2.4"
+  },
+  "postgresql_server": "18.0 (confirmado no log da instância temporária)",
+  "mermaid": "11.12.0",
+  "mermaid_esm_sha256": "765a1231ff0dc5fa788644cc9f17f869c181e7a28ad4e563d24325b0dad93d13",
+  "playwright": "1.64.0",
+  "ollama_client": "0.32.3",
+  "ollama_server": null,
+  "model_digest": null,
+  "model_quantization": null,
+  "note": "Fixtures técnicas sintéticas; nenhuma inferência real ou resultado documental BD01–BD03."
+}

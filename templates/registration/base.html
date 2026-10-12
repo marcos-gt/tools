@@ -1,0 +1,48 @@
+{% load static %}<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="same-origin">
+  <title>{% block title %}Sua conta{% endblock %} · Sistema de Chat</title>
+  <link rel="stylesheet" href="{% static 'app/auth.css' %}">
+  <script src="{% static 'app/auth.js' %}" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#auth-content">Ir para o formulário</a>
+  <div class="auth-layout">
+    <aside class="auth-hero">
+      <a class="brand" href="{% url 'login' %}">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M9 9L23 16L9 23" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="9" r="4" fill="currentColor"/><circle cx="23" cy="16" r="4" fill="currentColor"/><circle cx="9" cy="23" r="4" fill="currentColor"/></svg></span>
+        <span>Sistema de Chat<span class="brand-caption">CONTEÚDO EM CONEXÃO</span></span>
+      </a>
+      <div class="hero-content">
+        <span class="hero-kicker"><span></span> Um espaço para suas ideias</span>
+        <h2>Organize conteúdos.<br>Enxergue <em>conexões.</em></h2>
+        <p>Reúna suas anotações por tema e explore mapas mentais e fluxogramas no seu próprio espaço.</p>
+        <div class="concept-art" aria-hidden="true">
+          <svg class="concept-lines" viewBox="0 0 480 240"><path d="M110 118C180 118 175 53 268 53M110 118C190 118 190 126 332 126M110 118C180 118 180 204 272 204"/></svg>
+          <div class="concept-node concept-root"><span class="node-glyph">✦</span><small>SEU PONTO DE PARTIDA</small><strong>Anotações</strong></div>
+          <div class="concept-node concept-topic"><span class="node-dot teal"></span><strong>Temas</strong><small>Um lugar para cada assunto</small></div>
+          <div class="concept-node concept-links"><span class="node-dot blue"></span><strong>Relações</strong><small>Conecte o que você reuniu</small></div>
+          <div class="concept-node concept-maps"><span class="node-dot violet"></span><strong>Representações</strong><small>Veja o conteúdo de outra forma</small></div>
+        </div>
+      </div>
+      <div class="hero-footer"><span class="footer-line"></span> Seu conteúdo, no seu espaço.</div>
+    </aside>
+    <main class="auth-main" id="auth-content">
+      <div class="auth-card">
+        {% if not request.user.is_authenticated %}
+        <nav class="auth-tabs" aria-label="Acesso à conta">
+          <a href="{% url 'login' %}" class="{% block login_tab %}{% endblock %}">Entrar</a>
+          <a href="{% url 'signup' %}" class="{% block signup_tab %}{% endblock %}">Criar conta</a>
+        </nav>
+        {% else %}<a class="back-link" href="/">← Voltar ao meu espaço</a>{% endif %}
+        {% block content %}{% endblock %}
+        <p class="auth-footnote">Suas categorias e anotações ficam vinculadas à sua conta.</p>
+      </div>
+      <div class="main-footer">Organizar é o primeiro passo para enxergar conexões.</div>
+    </main>
+  </div>
+</body>
+</html>

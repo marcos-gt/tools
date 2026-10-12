@@ -1,0 +1,12 @@
+mindmap
+  root((SIM09 - CONSULTAS JOINS E VALORES NULOS))
+    Cliente e Pedido relacionam-se por id_cliente
+      INNER JOIN retorna correspondências entre as duas relações
+      LEFT JOIN preserva as linhas da relação à esquerda, podendo apresentar valores nulos nos atributos da direita sem correspondência
+    Objetivo do exemplo: listar todos os clientes, incluindo aqueles sem pedido
+      A entrada indica LEFT JOIN entre Cliente e Pedido para esse objetivo
+    Definir a relação Cliente como lado esquerdo
+      Aplicar a condição de associação por id_cliente
+      Preservar clientes sem correspondência
+      Apresentar resultado
+      Para verificar ausência de valor, o exemplo usa IS NULL, não igualdade com NULL

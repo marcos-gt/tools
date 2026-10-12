@@ -1,0 +1,8 @@
+flowchart TD
+    A["Funcionario id_funcionario determina id_departamento e id_departamento determina nome_departamento"] --> B{"Separar Departamento?"}
+    B -- Sim --> C[Departamento id_departamento, nome_departamento]
+    B -- Sim --> D[Funcionario id_funcionario, id_departamento]
+    A -.-> E[Mantém dependência transitiva na explicação do exemplo]
+    F["Identificar dependência transitiva entre atributos não chave"] --> G{Separar os dados do departamento?}
+    G -- Sim --> H[Atualizar a referência dos funcionários]
+    I{"Verificar se cada referência aponta para um departamento existente"}

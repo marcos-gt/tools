@@ -1,0 +1,6 @@
+flowchart TD
+    A[Base Table] --> B[Table ItemPedido(id_pedido, id_produto)]
+        B --> C[Table NomeProduto(id_nome, nome_produto)]
+        B --> D[Table ItemPedido quantitative (id_pedido, id_produto, quantidade)]
+            D --> E[Table NomeProduto quantitative (id_nome, nome_produto, quantidade)]
+    F[Table Produto(id_produto, nome_produto)]

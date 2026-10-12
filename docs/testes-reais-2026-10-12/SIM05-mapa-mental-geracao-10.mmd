@@ -1,0 +1,17 @@
+mindmap
+  SIM05 - SEGUNDA FORMA NORMAL
+    id_pedido: ID da pedido
+    id_produto: ID do produto
+    quantitative: Quantidade
+    nome_produto: Nome do produto
+    ItemPedido
+      id_pedido
+      id_produto
+      quantidade
+      nome_produto
+    Produto
+      id_produto
+      nome_produto
+    dependência:nome_produto em apenas parte da chave composta é parcial
+    separação deProduto(id_produto, nome_produto)deItemPedido(id_pedido, id_produto, quantidade)
+    manter referências entre as tabelas

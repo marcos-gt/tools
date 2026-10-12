@@ -1,0 +1,4 @@
+flowchart TD
+    A["Exemplo sintético: uma tabela de contatos armazena vários telefones em uma única célula separados por vírgulas."] --> B{"Essa organização mistura valores de um atributo multivalorado."}
+    C["A proposta do exemplo é manter Contato id_contato, nome e Telefone id_contato, numero com um número por registro."] --> D["A atomicidade depende do domínio considerado pelo modelo."]
+    E["Na transformação descrita: identificar células com lista de telefones; separar cada número; criar registros na tabela Telefone; manter a referência ao contato original. Não remover telefones do material."]

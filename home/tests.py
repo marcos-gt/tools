@@ -61,6 +61,15 @@ class GenerationTests(TestCase):
         self.assertIn('mindmap', mind['messages'][0]['content'])
         self.assertIn('flowchart TD', flow['messages'][0]['content'])
         self.assertNotEqual(mind, flow)
+        self.assertIn('uma única raiz', mind['messages'][0]['content'])
+        self.assertIn('Não use YAML', mind['messages'][0]['content'])
+        self.assertIn('rótulos em português entre aspas duplas', flow['messages'][0]['content'])
+        with override_settings(OLLAMA_THINK=False):
+            self.assertIs(build_payload('BD', snapshots, 'mapa-mental')['think'], False)
+        with override_settings(OLLAMA_THINK=True):
+            self.assertIs(build_payload('BD', snapshots, 'mapa-mental')['think'], True)
+        with override_settings(OLLAMA_THINK=None):
+            self.assertNotIn('think', build_payload('BD', snapshots, 'mapa-mental'))
         with override_settings(OLLAMA_MAX_INPUT_CHARS=5):
             with self.assertRaises(InferenceError):
                 build_payload('BD', snapshots, 'mapa-mental')
@@ -69,6 +78,8 @@ class GenerationTests(TestCase):
         code = 'mindmap\n  root((Chaves))\n    Integridade'
         self.assertEqual(normalize('<think>conteúdo privado</think>\n```mermaid\n' + code + '\n```', 'mapa-mental'), code)
         self.assertEqual(normalize(code, 'mapa-mental'), code)
+        flow = 'flowchart TD\n A["valor > 20 e valor < limite"] -.-> B["Verificar"]'
+        self.assertEqual(normalize(flow, 'fluxograma'), flow)
         for text in ('', '<think>incompleto', '```mermaid\n'+code, code+'\n```',
                      'explicação\n'+code, 'flowchart TD\n A-->B', 'mindmap', 'mindmap\n <script>alert(1)</script>'):
             with self.subTest(text=text), self.assertRaises(InferenceError):
@@ -144,7 +155,7 @@ class GenerationTests(TestCase):
         self.client.logout()
         for url in ('/chat/', '/categoria/', '/output/', '/chat/novo/'):
             self.assertEqual(self.client.get(url).status_code, 401)
-        self.assertEqual(self.client.post('/', {}).status_code, 302)
+        self.assertEqual(self.client.post('/', {}).status_code, 401)
 
     def test_csrf_login_and_protected_posts(self):
         secure = Client(enforce_csrf_checks=True)
@@ -172,3 +183,27 @@ class GenerationTests(TestCase):
         response = self.client.get('/')
         self.assertContains(response, 'id="generatorMode"')
         self.assertContains(response, 'mermaid@11.12.0')
+
+    @override_settings(OLLAMA_TOKEN='private-token', OLLAMA_BASE_URL='https://private-server.example')
+    @patch('home.inference.requests.post')
+    def test_error_response_does_not_export_proxy_configuration(self, post):
+        Chat.objects.create(usuario=self.user, categoria=self.cat, message='Conteúdo')
+        response = self.response()
+        response.text = 'Erro em https://private-server.example: private-token'
+        response.json.side_effect = ValueError()
+        post.return_value = response
+        result = self.generate()
+        exported = self.client.get(f"/output/{result.json()['output_id']}/export/json/").content.decode()
+        self.assertNotIn('private-token', exported)
+        self.assertNotIn('private-server.example', exported)
+
+    def test_render_status_owner_and_immutable_snapshot(self):
+        own = Output.objects.create(usuario=self.user, conteudo='mindmap\n root', status='success', payload={'original': True})
+        foreign = Output.objects.create(usuario=self.other, conteudo='Segredo', status='success')
+        response = self.client.post(f'/output/{own.pk}/render-status/', {'status': 'failure'}, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        own.refresh_from_db()
+        self.assertEqual(own.render_status, 'failure')
+        self.assertEqual(own.payload, {'original': True})
+        self.assertEqual(own.status, 'success')
+        self.assertEqual(self.client.post(f'/output/{foreign.pk}/render-status/', {'status': 'failure'}, content_type='application/json').status_code, 404)

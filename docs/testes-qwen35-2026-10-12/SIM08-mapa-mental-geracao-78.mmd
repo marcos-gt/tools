@@ -1,0 +1,19 @@
+mindmap
+  root((SIM08 - TRANSAÇÕES COMMIT E ROLLBACK))
+    Exemplo sintético de transferência
+      Atualização simultânea em débito e crédito
+      Uso de contas e valores fictícios
+    Fluxo da transação
+      Iniciar a transação
+      Verificar saldo suficiente
+        Se houver saldo:
+          Executar débito
+          Executar crédito
+          Verificar conclusão das duas atualizações
+            Confirmar com COMMIT se ambas concluírem
+        Se não houver saldo ou falha na atualização:
+          Executar ROLLBACK
+    Limitações do exemplo
+      Não inclui envio de notificações
+      Não realiza análise de crédito
+      Não integra sistemas externos

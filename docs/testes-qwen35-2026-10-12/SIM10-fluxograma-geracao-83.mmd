@@ -1,0 +1,6 @@
+flowchart TD
+    A["Exemplo de consulta: selecionar registros de estoque cujo valor > 20 e valor < limite, mantendo os nomes João, Ação e São Paulo como dados sintéticos de teste de acentuação."] --> B{Receber valor e limite; avaliar valor > 20}
+    B -- verdadeiro --> C[avaliar valor < limite]
+    B -- falso --> D[excluir o registro desse resultado]
+    C -- as duas condições forem verdadeiras --> E[incluir o registro no resultado]
+    C -- caso contrário --> D

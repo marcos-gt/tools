@@ -1,0 +1,103 @@
+COMMAND: check
+System check identified no issues (0 silenced).
+
+EXIT: 0
+COMMAND: makemigrations --check --dry-run
+No changes detected
+
+EXIT: 0
+COMMAND: migrate --noinput
+Operations to perform:
+  Apply all migrations: admin, auth, categoria, chat, contenttypes, login, output, sessions, sugestao
+Running migrations:
+  Applying login.0001_initial... OK
+
+EXIT: 0
+COMMAND: test --verbosity 2
+Found 25 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: messages, staticfiles, web
+  Apply all migrations: admin, auth, categoria, chat, contenttypes, login, output, sessions, sugestao
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying categoria.0001_initial... OK
+  Applying categoria.0002_categoria_usuario_and_more... OK
+  Applying chat.0001_initial... OK
+  Applying chat.0002_chat_usuario... OK
+  Applying chat.0003_chat_visualizationtype_alter_chat_usuario... OK
+  Applying chat.0004_chat_ativo... OK
+  Applying login.0001_initial... OK
+  Applying output.0001_initial... OK
+  Applying output.0002_output_usuario... OK
+  Applying output.0003_output_categoria_snapshot_output_codigo_erro_and_more... OK
+  Applying sessions.0001_initial... OK
+  Applying sugestao.0001_initial... OK
+System check identified no issues (0 silenced).
+Creating test database for alias 'default' ('test_tcc_schema')...
+
+test_access_and_mutation_isolation (home.tests.GenerationTests.test_access_and_mutation_isolation) ... ok
+test_creation_same_name_and_inactivation (home.tests.GenerationTests.test_creation_same_name_and_inactivation) ... ok
+test_csrf_login_and_protected_posts (home.tests.GenerationTests.test_csrf_login_and_protected_posts) ... ok
+test_error_response_does_not_export_proxy_configuration (home.tests.GenerationTests.test_error_response_does_not_export_proxy_configuration) ... Inferência falhou: registro=2 código=invalid_json
+ok
+test_failures_are_not_success (home.tests.GenerationTests.test_failures_are_not_success) ... Inferência falhou: registro=3 código=connection_unavailable
+Inferência falhou: registro=4 código=timeout
+Inferência falhou: registro=5 código=upstream_http
+Inferência falhou: registro=6 código=empty_content
+Inferência falhou: registro=7 código=incompatible_structure
+Inferência falhou: registro=8 código=incomplete_content
+Inferência falhou: registro=9 código=invalid_json
+Inferência falhou: registro=10 código=unexpected_response
+Inferência falhou: registro=11 código=incomplete_response
+ok
+test_full_order_quantity_and_isolation (home.tests.GenerationTests.test_full_order_quantity_and_isolation) ... ok
+test_home_template_contains_generation_mode (home.tests.GenerationTests.test_home_template_contains_generation_mode) ... ok
+test_invalid_input_does_not_call_service (home.tests.GenerationTests.test_invalid_input_does_not_call_service) ... ok
+test_normalization (home.tests.GenerationTests.test_normalization) ... ok
+test_prompts_distinct_and_limit (home.tests.GenerationTests.test_prompts_distinct_and_limit) ... ok
+test_render_status_owner_and_immutable_snapshot (home.tests.GenerationTests.test_render_status_owner_and_immutable_snapshot) ... ok
+test_snapshots_exports_no_secrets_and_no_overwrite (home.tests.GenerationTests.test_snapshots_exports_no_secrets_and_no_overwrite) ... ok
+test_activation_does_not_reactivate_disabled_confirmed_account (login.tests.AccountTests.test_activation_does_not_reactivate_disabled_confirmed_account) ... ok
+test_activation_invalid_expired_and_wrong_purpose_tokens (login.tests.AccountTests.test_activation_invalid_expired_and_wrong_purpose_tokens) ... ok
+test_activation_requires_post_is_one_use_and_sends_welcome (login.tests.AccountTests.test_activation_requires_post_is_one_use_and_sends_welcome) ... ok
+test_duplicates_case_insensitive_and_weak_password (login.tests.AccountTests.test_duplicates_case_insensitive_and_weak_password) ... ok
+test_email_links_ignore_request_host_and_login_redirect_is_safe (login.tests.AccountTests.test_email_links_ignore_request_host_and_login_redirect_is_safe) ... ok
+test_existing_active_accounts_remain_usable (login.tests.AccountTests.test_existing_active_accounts_remain_usable) ... ok
+test_password_reset_round_trip_expiry_and_reuse (login.tests.AccountTests.test_password_reset_round_trip_expiry_and_reuse) ... ok
+test_rate_limit_and_csrf (login.tests.AccountTests.test_rate_limit_and_csrf) ... ok
+test_resend_and_recovery_do_not_disclose_accounts (login.tests.AccountTests.test_resend_and_recovery_do_not_disclose_accounts) ... ok
+test_reset_runtime_mail_error_has_same_public_response (login.tests.AccountTests.test_reset_runtime_mail_error_has_same_public_response) ... auth_email_failed action=recovery
+ok
+test_signup_password_hash_inactive_and_multipart_email (login.tests.AccountTests.test_signup_password_hash_inactive_and_multipart_email) ... ok
+test_smtp_signup_failure_rolls_back_and_hides_details (login.tests.AccountTests.test_smtp_signup_failure_rolls_back_and_hides_details) ... auth_email_failed action=signup
+ok
+test_unconfigured_mail_shows_useful_error_without_creating_user (login.tests.AccountTests.test_unconfigured_mail_shows_useful_error_without_creating_user) ... auth_email_failed action=signup
+ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 23.561s
+
+OK
+Destroying test database for alias 'default' ('test_tcc_schema')...
+
+
+EXIT: 0

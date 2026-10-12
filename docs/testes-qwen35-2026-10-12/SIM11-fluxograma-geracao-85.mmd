@@ -1,0 +1,6 @@
+flowchart TD
+    A["Um índice é uma estrutura auxiliar que pode apoiar o acesso a dados."] --> B{"O exemplo considera busca por id_cliente, sem assumir que todo índice será escolhido pelo otimizador."}
+    C["Registrar o plano da consulta antes de criar o índice;"] --> D["criar o índice de teste;"]
+    D --> E["registrar novamente o plano;"]
+    E --> F{"comparar as observações obtidas."}
+    G["O índice exige espaço e manutenção em operações de escrita."]

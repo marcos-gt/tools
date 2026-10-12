@@ -1,0 +1,6 @@
+flowchart TD
+    A[Receber uma linha] --> B[Verificar se o código_item está preenchido]
+    B --> [Sim] --> C[Verificar se a quantidade é um número positivo]
+    C --> [Sim] --> D[Registrar o item]
+    C --> [Não] --> E[Rejeitar a linha; indicar o campo inválido]
+    B --> [Não] --> E[Rejeitar a linha; indicar o campo inválido]

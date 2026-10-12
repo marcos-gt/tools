@@ -32,7 +32,7 @@ def receberCategorias(request):
     created = []
     with transaction.atomic():
         for name in names:
-            c, new = Categoria.objects.get_or_create(usuario=request.user, nome=name.strip(), defaults={'descricao': ''})
+            c, new = Categoria.objects.get_or_create(usuario=request.user, nome=name.strip().upper(), defaults={'descricao': ''})
             if not c.ativa:
                 c.ativa = True
                 c.save(update_fields=['ativa'])

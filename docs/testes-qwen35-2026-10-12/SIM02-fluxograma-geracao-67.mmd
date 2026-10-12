@@ -1,0 +1,5 @@
+flowchart TD
+    A["Exemplo sintético: Cliente possui id_cliente como chave primária."] --> B["Pedido possui id_pedido como chave primária e id_cliente como chave estrangeira que referencia Cliente.id_cliente."]
+    C["A chave primária identifica cada registro e não aceita duplicidade ou valor nulo."] --> D["A chave estrangeira mantém a referência ao cliente existente."]
+    E["Um cliente pode estar associado a vários pedidos."]
+    F["Para cadastrar um pedido, receber id_cliente; verificar se o cliente existe; se existir, inserir o pedido; se não existir, rejeitar a operação. Não criar automaticamente um cliente para completar a referência."]

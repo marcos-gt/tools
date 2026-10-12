@@ -1,0 +1,8 @@
+Olá, {{ user.first_name|default:user.username }}!
+
+Confirme seu email para ativar sua conta em {{ site_name }}:
+{{ action_url }}
+
+O link tem validade de {{ expiry_minutes }} minutos. Na página, clique em Confirmar meu email.
+Seu usuário para entrar é: {{ user.username }}.
+Se você não iniciou este cadastro, ignore esta mensagem. Sua senha nunca é enviada por email.

@@ -1,8 +1,7 @@
 ﻿import logging
 import time
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from categoria.models import Categoria
 from chat.models import Chat
 from output.models import Output
@@ -11,8 +10,11 @@ from .inference import build_payload, infer, InferenceError
 
 logger = logging.getLogger(__name__)
 
-@login_required
 def index(request):
+    if not request.user.is_authenticated:
+        if request.method == 'GET':
+            return redirect('/login/?next=/')
+        return error('Autenticação obrigatória.', 'authentication_required', 401)
     if request.method == 'POST':
         category = owned_category(request.user, request.POST.get('generatorCategory'))
         mode = request.POST.get('visualizationType')
@@ -43,6 +45,11 @@ def index(request):
             record.resposta_original = exc.original
             logger.warning('Inferência falhou: registro=%s código=%s', record.pk, exc.code)
             return error(exc.message, exc.code, exc.status, output_id=record.pk)
+        except Exception:
+            record.status = 'failure'
+            record.codigo_erro = 'internal_error'
+            logger.error('Falha interna na inferência: registro=%s', record.pk)
+            return error('Falha interna ao processar a geração.', 'internal_error', 500, output_id=record.pk)
         finally:
             record.duracao_ms = round((time.monotonic() - started) * 1000)
             record.save()
